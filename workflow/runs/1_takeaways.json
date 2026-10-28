@@ -1,0 +1,120 @@
+{
+  "step": "1_takeaways",
+  "model": "IFM/K2-Horizon-375B-A23B",
+  "latency_s": 39.21,
+  "usage": {
+    "completion_tokens": 2686,
+    "prompt_tokens": 13015,
+    "total_tokens": 15701,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "prompt": "Below is the full text of a robotics paper. Extract its key takeaways.\n\nReturn ONLY a JSON object:\n{\"title\": str,\n  \"findings\":    [{\"point\": str, \"evidence_quote\": str, \"section\": str}],\n  \"methods\":     [{\"point\": str, \"evidence_quote\": str, \"section\": str}],\n  \"limitations\": [{\"point\": str, \"evidence_quote\": str, \"section\": str, \"stated_by_authors\": bool}]}\n\nRules: 4-6 items per list. \"evidence_quote\" must be copied verbatim from the paper (max 40 words).\nFindings must include concrete numbers where the paper reports them. For limitations, mark\nstated_by_authors=false if it is your own inference rather than something the paper says.\n\nPAPER:\nFastUMI: A Scalable and Hardware-Independent Universal Manipulation Interface with Dataset\n\nSkip to main content\n\n Title:\n\nContent selection saved. Describe the issue below:\n\n Description:\n\n License: CC BY 4.0\n\narXiv:2409.19499v2 [cs.RO] 01 Feb 2025\n\nFastUMI: A Scalable and Hardware-Independent Universal Manipulation Interface with Dataset\n\nZhaxizhuoma\n\nKehui Liu\n\nChuyue Guan\n\nZhongjie Jia\n\nAffiliation: Shanghai AI Lab\n\nZiniu Wu\n\nAffiliation: Shanghai AI Lab\n\nXin Liu\n\nAffiliation: Shanghai AI Lab\n\nTianyu Wang\n\nAffiliation: Shanghai AI Lab\n\nShuai Liang\n\nAffiliation: Shanghai AI Lab\n\nPengan Chen\n\nAffiliation: Shanghai AI Lab\n\nPingrui Zhang\n\nAffiliation: Shanghai AI Lab\n\nHaoming Song\n\nAffiliation: Shanghai AI Lab\n\nAffiliation: Shanghai Jiao Tong University\n\nDelin Qu\n\nAffiliation: Shanghai AI Lab\n\nAffiliation: Fudan University\n\nDong Wang\n\nAffiliation: Shanghai AI Lab\n\nZhigang Wang\n\nAffiliation: Shanghai AI Lab\n\nNieqing Cao\n\nAffiliation: Xi’an Jiaotong-Liverpool University\n\nYan Ding\n\nBin Zhao\n\nXuelong Li\n\nAffiliation: Shanghai AI Lab\n\nAffiliation: Institute of AI, China Telecom Corp Ltd $\\dagger$ $*$ Equal Contribution, $\\ddagger$ Project Leader,\nProject Website: https://fastumi.com/\n\nAffiliation: University of Bristol\n\nAffiliation: The University of Hong Kong\n\nAbstract\n\nReal-world manipulation data involving robotic arms is crucia",
+  "reasoning": "The user wants me to extract key takeaways from the FastUMI robotics paper and return them as a JSON object with specific structure. Let me analyze the paper carefully.\n\nThe paper is about FastUMI, a scalable and hardware-independent Universal Manipulation Interface with a dataset.\n\nKey findings:\n1. FastUMI is a redesign of UMI with decoupled hardware design - removes dependencies on specialized robotic components (like Weiss WSG-50 gripper)\n2. Replaces VIO with RealSense T265 tracking module\n3. Dataset: over 10,000 real-world demonstration trajectories spanning 22 everyday tasks\n4. Experimental results: T265 vs MINI tracking errors (Pick Cup: T265 10.5mm avg, MINI 15.2mm; Open Container: T265 17.7mm, MINI 11.2mm)\n5. Depth-Enhanced DP improves success rates: Pick Lid 53.33%→80%, Open Ricecooker 20%→93.33%\n6. ACT variants: Smooth-ACT and PoseACT improvements (Pick Bear: 20%→60%→80%; Sweep Trash: 6.67%→26.67%→53.33%)\n7. Data size effect: Pick Cup 200→20%, 400→26.67%, 800→53.33%\n8. Camera comparison: fisheye lens performs comparably to multi-view setups\n\nMethods:\n1. Hardware decoupling - standardized interfaces, modular components\n2. Visual consistency - uniform camera perspectives (GoPro fisheye 155-degree FOV)\n3. T265 tracking replaces VIO\n4. Data synchronization - sub-sampling at 20 Hz (greatest common frequency of 200Hz and 60Hz)\n5. Drift correction - reinitialization and loop closure with blue 3D-printed groove\n6. Data quality assessment - 95% High confidence threshold\n7. Trajectory generation - absolute TCP, relative TCP, absolute joint trajectories\n8. Gripper width computation via ArUco markers\n9. Smooth-ACT with GRU layer\n10. PoseACT with end-effector pose prediction\n11. Depth-Enhanced DP using Depth Anything V2\n12. Dynamic error-compensation algorithm for non-parallel jaws\n\nLimitations (stated by authors):\n1. Limited sensing modalities - relies on visual data, insufficient for force/tactile feedback tasks\n2. Restricted robot compatibility - not adapted for mobile manipulators or complex morphologies\n3. Wired data transfer - constrains portability\n\nLet me now construct the JSON with 4-6 items per list, with verbatim evidence quotes (max 40 words).\n\nFor findings, I need concrete numbers where reported.\n\nLet me draft:\n\nFindings:\n1. Dataset scale: \"we have open-sourced a high-quality dataset of over 10,000 real-world demonstration trajectories spanning 22 everyday tasks\" - Abstract\n2. T265 vs MINI tracking: \"In the \"Pick Cup\" scenario, where occlusion is minimal, T265 achieves an average positioning error of 10.5 mm, while MINI's error averages 15.2 mm.\" - VI-A\n3. Depth-Enhanced DP: \"success rates increase by 26.67% on \"Pick Lid\" and 73.33% on \"Open Ricecooker.\"\" - VI-C\n4. ACT variants: \"Pick Bear 20.00% 60.00% 80.00% 73.33%\" - TABLE IV\n5. Data size scaling: \"Pick Cup 20.00% 26.67% 53.33%\" for 200/400/800 - TABLE VI\n6. Camera comparison: fisheye comparable to multi-view\n\nMethods:\n1. Hardware decoupling\n2. T265 tracking replacing VIO\n3. Synchronization at 20 Hz\n4. Drift correction via loop closure\n5. Smooth-ACT GRU\n6. Depth-Enhanced DP with Depth Anything V2\n7. Dynamic error compensation\n\nLimitations:\n1. Limited sensing modalities (stated)\n2. Restricted robot compatibility (stated)\n3. Wired data transfer (stated)\n\nLet me make sure quotes are verbatim and under 40 words.\n\nFor the JSON structure:\n{\"title\": str,\n  \"findings\":    [{\"point\": str, \"evidence_quote\": str, \"section\": str}],\n  \"methods\":     [{\"point\": str, \"evidence_quote\": str, \"section\": str}],\n  \"limitations\": [{\"point\": str, \"evidence_quote\": str, \"section\": str, \"stated_by_authors\": bool}]}\n\nTitle: \"FastUMI: A Scalable and Hardware-Independent Universal Manipulation Interface with Dataset\"\n\nLet me write out the final JSON carefully.\n",
+  "content": "\n{\"title\": \"FastUMI: A Scalable and Hardware-Independent Universal Manipulation Interface with Dataset\", \"findings\": [{\"point\": \"FastUMI releases a large-scale real-world dataset of over 10,000 demonstration trajectories covering 22 everyday tasks, 19 object categories, and 12 manipulation skills, with demonstrations lasting approximately 6-12 seconds.\", \"evidence_quote\": \"we have open-sourced a high-quality dataset of over 10,000 real-world demonstration trajectories spanning 22 everyday tasks, forming one of the most diverse UMI-like datasets to date.\", \"section\": \"Abstract\"}, {\"point\": \"Pose tracking accuracy differs by sensor and occlusion level: in the low-occlusion Pick Cup task T265 averages 10.5 mm error versus MINI's 15.2 mm, but in the occluded Open Container task T265 degrades to 17.7 mm while MINI improves to 11.2 mm.\", \"evidence_quote\": \"In the \\\"Pick Cup\\\" scenario, where occlusion is minimal, T265 achieves an average positioning error of 10.5 mm, while MINI's error averages 15.2 mm.\", \"section\": \"VI-A Data Quality\"}, {\"point\": \"Adding estimated depth to Diffusion Policy yields large gains on precision tasks: success rises from 53.33% to 80.00% on Pick Lid and from 20.00% to 93.33% on Open Ricecooker.\", \"evidence_quote\": \"success rates increase by 26.67% on \\\"Pick Lid\\\" and 73.33% on \\\"Open Ricecooker.\\\"\", \"section\": \"VI-C Algorithmic Enhancements\"}, {\"point\": \"ACT variants improve over baseline ACT: on Pick Bear, Smooth-ACT reaches 60.00% and PoseACT (Absolute) reaches 80.00% versus 20.00% for original ACT; on Sweep Trash, PoseACT (Relative) reaches 60.00% versus 6.67% baseline.\", \"evidence_quote\": \"Pick Bear 20.00% 60.00% 80.00% 73.33%\", \"section\": \"VI-C Algorithmic Enhancements\"}, {\"point\": \"Policy performance scales with training data size: on the Pick Cup task, success rates increase from 20.00% with 200 demonstrations to 26.67% with 400 and 53.33% with 800 demonstrations.\", \"evidence_quote\": \"Pick Cup 20.00% 26.67% 53.33%\", \"section\": \"VI-D Additional Factors\"}, {\"point\": \"A single fisheye GoPro at the end-effector achieves performance comparable to multi-view camera setups, e.g., 100.00% on Open Container for both fisheye first-person and D435i multi-view configurations.\", \"evidence_quote\": \"a fisheye lens at the end-effector achieves performance comparable to multi-view setups, potentially because its wide field of view captures richer contextual information for decision-making.\", \"section\": \"VI-D Additional Factors\"}], \"methods\": [{\"point\": \"Hardware decoupling via standardized, modular components: ISO-standard flange plates, plug-in fingertip attachments for five common grippers covering over 90% of grippers in open-source datasets, and adjustable camera mounts maintain consistent GoPro viewpoints across platforms.\", \"evidence_quote\": \"we design five customized fingertip attachments (e.g., the xArm gripper and Robotiq 2f-85) based on commonly used grippers in open-source datasets such as Open X-Embodiment, covering over 90% of the grippers in these datasets.\", \"section\": \"II-C Robot-Mounted Device Design\"}, {\"point\": \"The GoPro-based VIO pipeline is replaced with an off-the-shelf RealSense T265 tracking module, eliminating complex calibration and coordinate transformations while maintaining pose accuracy under partial occlusion.\", \"evidence_quote\": \"we replace the UMI's VIO-based localization with a RealSense T265 module, which integrates both visual and inertial data to provide more stable tracking in partially occluded environments.\", \"section\": \"I Introduction\"}, {\"point\": \"Multi-sensor synchronization is achieved by sub-sampling the 200 Hz T265 stream and 60 fps GoPro stream at their greatest common frequency of 20 Hz, pairing each retained frame with the temporally nearest pose for sub-millisecond alignment.\", \"evidence_quote\": \"We then sub-sample both streams at 20 Hz—identified as the greatest common frequency between 200 Hz and 60 Hz—by retaining one in every three camera frames and pairing each retained frame with the temporally nearest T265 pose.\", \"section\": \"III-A Raw Data Acquisition\"}, {\"point\": \"T265 drift is managed through reinitialization at a predefined reference pose and loop closure using a visually distinct blue 3D-printed groove on the table as a reference region.\", \"evidence_quote\": \"Another strategy leverages a visually distinct reference region—a blue 3D-printed groove on the table (Fig. 5 Left)—to facilitate loop closure.\", \"section\": \"III-A Raw Data Acquisition\"}, {\"point\": \"Smooth-ACT adds a GRU layer on top of the Transformer decoder to enforce local temporal continuity of joint actions, while PoseACT replaces absolute joint prediction with end-effector TCP pose prediction (absolute or relative) mapped back to joints via inverse kinematics.\", \"evidence_quote\": \"we introduce Smooth-ACT, which enhances action continuity by incorporating a Gated Recurrent Unit (GRU) layer on top of the Transformer decoder\", \"section\": \"IV-C Enhanced ACT for First-Person Perspectives\"}, {\"point\": \"Depth-Enhanced DP generates depth maps offline with Depth Anything V2 on cropped 448x448 images, encodes them as pseudo-color three-channel maps alongside RGB in a shared CLIP ViT encoder, and runs the large model at 20 Hz on an RTX 4090 during inference.\", \"evidence_quote\": \"we implement Depth Anything V2 with its large pre-trained model, achieving an inference frequency of 20 Hz on an RTX 4090 GPU.\", \"section\": \"IV-D Depth-Enhanced Diffusion Policy\"}, {\"point\": \"A dynamic error-compensation algorithm corrects TCP displacement from non-parallel gripper jaws by computing a width-dependent compensation distance and shifting the commanded TCP along its local Z-axis before inverse kinematics.\", \"evidence_quote\": \"we propose a dynamic error-compensation algorithm that adjusts the commanded TCP in real time.\", \"section\": \"IV-E Dynamic Error-Compensation Algorithm\"}], \"limitations\": [{\"point\": \"FastUMI relies only on visual data, which is insufficient for tasks requiring precise force or tactile feedback such as handling fragile objects; integrating tactile or force sensors is left to future work.\", \"evidence_quote\": \"FastUMI currently relies on visual data, which may prove insufficient for tasks requiring precise force or tactile feedback—such as handling fragile objects.\", \"section\": \"VII Limitations\", \"stated_by_authors\": true}, {\"point\": \"The system supports single-arm and dual-arm platforms but is not yet adapted to more complex morphologies such as mobile manipulators requiring whole-body control.\", \"evidence_quote\": \"Although FastUMI accommodates single-arm or dual-arm platforms, it is not yet adapted for more complex morphologies, including mobile manipulators requiring whole-body control.\", \"section\": \"VII Limitations\", \"stated_by_authors\": true}, {\"point\": \"Wired data transfer constrains portability and limits field applications where mobility or standalone operation is needed; a wireless solution is identified as future work.\", \"evidence_quote\": \"Reliance on wired connections constrains portability and limits field applications where mobility or standalone operation is pivotal.\", \"section\": \"VII Limitations\", \"stated_by_authors\": true}, {\"point\": \"Not all gripper types are supported by the fingertip attachments, though the design can be readily adapted as needed.\", \"evidence_quote\": \"Although not all gripper types are yet supported, our design can be readily adapted as needed.\", \"section\": \"II-C Robot-Mounted Device Design\", \"stated_by_authors\": true}, {\"point\": \"T265 tracking is susceptible to severe close-range visual occlusion and low-light conditions, which reduce confidence levels and increase drift, requiring reinitialization when loop closure fails.\", \"evidence_quote\": \"T265 is particularly susceptible to severe visual obstruction at close range.\", \"section\": \"VI-A Data Quality\", \"stated_by_authors\": true}]}",
+  "parsed": {
+    "title": "FastUMI: A Scalable and Hardware-Independent Universal Manipulation Interface with Dataset",
+    "findings": [
+      {
+        "point": "FastUMI releases a large-scale real-world dataset of over 10,000 demonstration trajectories covering 22 everyday tasks, 19 object categories, and 12 manipulation skills, with demonstrations lasting approximately 6-12 seconds.",
+        "evidence_quote": "we have open-sourced a high-quality dataset of over 10,000 real-world demonstration trajectories spanning 22 everyday tasks, forming one of the most diverse UMI-like datasets to date.",
+        "section": "Abstract"
+      },
+      {
+        "point": "Pose tracking accuracy differs by sensor and occlusion level: in the low-occlusion Pick Cup task T265 averages 10.5 mm error versus MINI's 15.2 mm, but in the occluded Open Container task T265 degrades to 17.7 mm while MINI improves to 11.2 mm.",
+        "evidence_quote": "In the \"Pick Cup\" scenario, where occlusion is minimal, T265 achieves an average positioning error of 10.5 mm, while MINI's error averages 15.2 mm.",
+        "section": "VI-A Data Quality"
+      },
+      {
+        "point": "Adding estimated depth to Diffusion Policy yields large gains on precision tasks: success rises from 53.33% to 80.00% on Pick Lid and from 20.00% to 93.33% on Open Ricecooker.",
+        "evidence_quote": "success rates increase by 26.67% on \"Pick Lid\" and 73.33% on \"Open Ricecooker.\"",
+        "section": "VI-C Algorithmic Enhancements"
+      },
+      {
+        "point": "ACT variants improve over baseline ACT: on Pick Bear, Smooth-ACT reaches 60.00% and PoseACT (Absolute) reaches 80.00% versus 20.00% for original ACT; on Sweep Trash, PoseACT (Relative) reaches 60.00% versus 6.67% baseline.",
+        "evidence_quote": "Pick Bear 20.00% 60.00% 80.00% 73.33%",
+        "section": "VI-C Algorithmic Enhancements"
+      },
+      {
+        "point": "Policy performance scales with training data size: on the Pick Cup task, success rates increase from 20.00% with 200 demonstrations to 26.67% with 400 and 53.33% with 800 demonstrations.",
+        "evidence_quote": "Pick Cup 20.00% 26.67% 53.33%",
+        "section": "VI-D Additional Factors"
+      },
+      {
+        "point": "A single fisheye GoPro at the end-effector achieves performance comparable to multi-view camera setups, e.g., 100.00% on Open Container for both fisheye first-person and D435i multi-view configurations.",
+        "evidence_quote": "a fisheye lens at the end-effector achieves performance comparable to multi-view setups, potentially because its wide field of view captures richer contextual information for decision-making.",
+        "section": "VI-D Additional Factors"
+      }
+    ],
+    "methods": [
+      {
+        "point": "Hardware decoupling via standardized, modular components: ISO-standard flange plates, plug-in fingertip attachments for five common grippers covering over 90% of grippers in open-source datasets, and adjustable camera mounts maintain consistent GoPro viewpoints across platforms.",
+        "evidence_quote": "we design five customized fingertip attachments (e.g., the xArm gripper and Robotiq 2f-85) based on commonly used grippers in open-source datasets such as Open X-Embodiment, covering over 90% of the grippers in these datasets.",
+        "section": "II-C Robot-Mounted Device Design"
+      },
+      {
+        "point": "The GoPro-based VIO pipeline is replaced with an off-the-shelf RealSense T265 tracking module, eliminating complex calibration and coordinate transformations while maintaining pose accuracy under partial occlusion.",
+        "evidence_quote": "we replace the UMI's VIO-based localization with a RealSense T265 module, which integrates both visual and inertial data to provide more stable tracking in partially occluded environments.",
+        "section": "I Introduction"
+      },
+      {
+        "point": "Multi-sensor synchronization is achieved by sub-sampling the 200 Hz T265 stream and 60 fps GoPro stream at their greatest common frequency of 20 Hz, pairing each retained frame with the temporally nearest pose for sub-millisecond alignment.",
+        "evidence_quote": "We then sub-sample both streams at 20 Hz—identified as the greatest common frequency between 200 Hz and 60 Hz—by retaining one in every three camera frames and pairing each retained frame with the temporally nearest T265 pose.",
+        "section": "III-A Raw Data Acquisition"
+      },
+      {
+        "point": "T265 drift is managed through reinitialization at a predefined reference pose and loop closure using a visually distinct blue 3D-printed groove on the table as a reference region.",
+        "evidence_quote": "Another strategy leverages a visually distinct reference region—a blue 3D-printed groove on the table (Fig. 5 Left)—to facilitate loop closure.",
+        "section": "III-A Raw Data Acquisition"
+      },
+      {
+        "point": "Smooth-ACT adds a GRU layer on top of the Transformer decoder to enforce local temporal continuity of joint actions, while PoseACT replaces absolute joint prediction with end-effector TCP pose prediction (absolute or relative) mapped back to joints via inverse kinematics.",
+        "evidence_quote": "we introduce Smooth-ACT, which enhances action continuity by incorporating a Gated Recurrent Unit (GRU) layer on top of the Transformer decoder",
+        "section": "IV-C Enhanced ACT for First-Person Perspectives"
+      },
+      {
+        "point": "Depth-Enhanced DP generates depth maps offline with Depth Anything V2 on cropped 448x448 images, encodes them as pseudo-color three-channel maps alongside RGB in a shared CLIP ViT encoder, and runs the large model at 20 Hz on an RTX 4090 during inference.",
+        "evidence_quote": "we implement Depth Anything V2 with its large pre-trained model, achieving an inference frequency of 20 Hz on an RTX 4090 GPU.",
+        "section": "IV-D Depth-Enhanced Diffusion Policy"
+      },
+      {
+        "point": "A dynamic error-compensation algorithm corrects TCP displacement from non-parallel gripper jaws by computing a width-dependent compensation distance and shifting the commanded TCP along its local Z-axis before inverse kinematics.",
+        "evidence_quote": "we propose a dynamic error-compensation algorithm that adjusts the commanded TCP in real time.",
+        "section": "IV-E Dynamic Error-Compensation Algorithm"
+      }
+    ],
+    "limitations": [
+      {
+        "point": "FastUMI relies only on visual data, which is insufficient for tasks requiring precise force or tactile feedback such as handling fragile objects; integrating tactile or force sensors is left to future work.",
+        "evidence_quote": "FastUMI currently relies on visual data, which may prove insufficient for tasks requiring precise force or tactile feedback—such as handling fragile objects.",
+        "section": "VII Limitations",
+        "stated_by_authors": true
+      },
+      {
+        "point": "The system supports single-arm and dual-arm platforms but is not yet adapted to more complex morphologies such as mobile manipulators requiring whole-body control.",
+        "evidence_quote": "Although FastUMI accommodates single-arm or dual-arm platforms, it is not yet adapted for more complex morphologies, including mobile manipulators requiring whole-body control.",
+        "section": "VII Limitations",
+        "stated_by_authors": true
+      },
+      {
+        "point": "Wired data transfer constrains portability and limits field applications where mobility or standalone operation is needed; a wireless solution is identified as future work.",
+        "evidence_quote": "Reliance on wired connections constrains portability and limits field applications where mobility or standalone operation is pivotal.",
+        "section": "VII Limitations",
+        "stated_by_authors": true
+      },
+      {
+        "point": "Not all gripper types are supported by the fingertip attachments, though the design can be readily adapted as needed.",
+        "evidence_quote": "Although not all gripper types are yet supported, our design can be readily adapted as needed.",
+        "section": "II-C Robot-Mounted Device Design",
+        "stated_by_authors": true
+      },
+      {
+        "point": "T265 tracking is susceptible to severe close-range visual occlusion and low-light conditions, which reduce confidence levels and increase drift, requiring reinitialization when loop closure fails.",
+        "evidence_quote": "T265 is particularly susceptible to severe visual obstruction at close range.",
+        "section": "VI-A Data Quality",
+        "stated_by_authors": true
+      }
+    ]
+  },
+  "parse_ok": true
+}

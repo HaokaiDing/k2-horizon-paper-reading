@@ -1,0 +1,168 @@
+{
+  "step": "2b_related_refs",
+  "model": "IFM/K2-Horizon-375B-A23B",
+  "latency_s": 39.2,
+  "usage": {
+    "completion_tokens": 2859,
+    "prompt_tokens": 4509,
+    "total_tokens": 7368,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "request_extra": {
+    "response_format": {
+      "type": "json_object"
+    },
+    "chat_template_kwargs": {
+      "reasoning_effort": "medium"
+    }
+  },
+  "prompt": "Research question: How can manipulation demonstrations collected with a handheld, UMI-style gripper be transferred to robots whose end-effectors differ from the data-collection gripper (cross-embodiment transfer of handheld-gripper data)?\n\nBelow is the reference list of the FastUMI paper (arXiv 2409.19499). Choose at least 8 of these\nreferences that matter most for the research question and organise them by theme.\nReturn ONLY a JSON object:\n{\"themes\": [{\"theme\": str, \"papers\": [{\"ref_number\": int, \"title\": str, \"authors\": str, \"year\": int,\n  \"arxiv_id\": str or null, \"doi\": str or null, \"url\": str or null, \"why_it_matters\": str}]}]}\nCopy title, authors, year and any URL from the reference entry. Extract an arXiv ID only if it\nappears in the entry. \"why_it_matters\" must relate the paper to the question, not restate its abstract.\n\nREFERENCES:\n\nReferences\n\n[1]\n\nConstructions Aeronautiques, Adele Howe, Craig Knoblock, ISI Drew McDermott, Ashwin Ram, Manuela Veloso, Daniel Weld, David Wilkins Sri, Anthony Barrett, Dave Christianson, et al.\n\nPddl— the planning domain definition language.\n\nTechnical Report, Tech. Rep., 1998.\n\n[2]\n\nKai Arulkumaran, Marc Peter Deisenroth, Miles Brundage, and Anil Anthony Bharath.\n\nDeep reinforcement learning: A brief survey.\n\nIEEE Signal Processing Magazine, 34(6):26–38, 2017.\n\n[3]\n\nShikhar Bahl, Abhinav Gupta, and Deepak Pathak.\n\nHuman-to-robot imitation in the wild, 2022.\n\nURL https://arxiv.org/abs/2207.09450.\n\n[4]\n\nSuneel Belkhale, Yuchen Cui, and Dorsa Sadigh.\n\nData Quality in Imitation Learning.\n\nIn A. Oh, T. Naumann, A. Globerson, K. Saenko, M. Hardt, and S. Levine, editors, Advances in Neural Information Processing Systems, volume 36, pages 80375–80395. Curran Associates, Inc., 2023.\n\nURL https://proceedings.neurips.cc/paper_files/paper/2023/file/fe692980c5d9732cf153ce27947653a7-Paper-Conference.pdf.\n\n[5]\n\nAnthony Brohan, Noah Brown, Justice Carbajal, Yevgen Chebotar, Joseph Dabis, Chelsea Finn, Keerthana Gopalakrishnan, Karol Hausman,",
+  "reasoning": "We need to select at least 8 references most relevant to cross-embodiment transfer of handheld-gripper data. Themes could be: Universal Manipulation Interface (UMI) and cross-embodiment; handheld gripper morphological gap; teleoperation data collection; imitation learning surveys; large-scale robot datasets; policy learning (diffusion policy, RT-1); data quality; AR feedback; etc.\n\nWe need to output JSON with themes array, each theme with papers list containing ref_number, title, authors, year, arxiv_id (if present), doi, url, why_it_matters.\n\nWe must copy title, authors, year, URL from entry. Extract arXiv ID only if appears. Provide why_it_matters relating to question.\n\nSelect at least 8 references. Let's pick:\n\n[10] Universal manipulation interface (UMI) - core.\n[14] On hand-held grippers and morphological gap - directly about embodiment gap.\n[3] Human-to-robot imitation in the wild - cross-embodiment.\n[5] RT-1 robotics transformer - large-scale policy transfer.\n[9] Diffusion policy - policy learning from demonstrations.\n[30] Open X-Embodiment datasets - cross-embodiment data.\n[41] DexCap - mocap data collection for dexterous manipulation (handheld?).\n[48] Deep imitation learning from VR teleoperation - teleop data collection.\n[33] Scalable intuitive human to robot skill transfer with wearable HMI - wearable interfaces.\n[36] Grasping in the Wild - low-cost demonstrations.\n\nWe need at least 8, can include more.\n\nOrganize by themes:\n\nTheme 1: Universal Manipulation Interface & Cross-Embodiment Frameworks (refs 10, 30, 3)\nTheme 2: Morphological Gap & Handheld Gripper Studies (14, 33, 41)\nTheme 3: Large-Scale Demonstration Datasets & Teleoperation Collection (5, 48, 36, 41 maybe)\nTheme 4: Policy Learning from Demonstrations (9, 5, 30)\nTheme 5: Data Quality & Imitation Learning Foundations (4, 22, 45) maybe.\n\nBut need at least 8 papers total. Provide why_it_matters.\n\nLet's craft JSON.\n\nNeed authors string exactly as in entry. Use as given.\n\nCheck each entry for arXiv ID:\n\n[10] arXiv:2402.10329\n[14] arXiv:2311.01832\n[3] arXiv:2207.09450\n[5] arXiv:2212.06817\n[9] No arXiv ID (published in IJRR) but could have none.\n[30] No arXiv ID (ICRA paper) but maybe none.\n[41] arXiv:2403.07788\n[48] arXiv:1710.04615\n[33] No arXiv ID (IROS 2023) but maybe none.\n[36] No arXiv ID (RA-L 2020) but maybe none.\n[4] No arXiv ID (NeurIPS 2023) but maybe none.\n[22] No arXiv ID (ACM CSUR 2017) but maybe none.\n[45] No arXiv ID (IEEE TC 2024) but maybe none.\n\nWe need at least 8; we can include 10.\n\nLet's produce JSON with themes.\n\nMake sure each paper includes fields: ref_number, title, authors, year, arxiv_id (or null), doi (or null), url (or null), why_it_matters.\n\nExtract URLs:\n\n[10] URL https://arxiv.org/abs/2402.10329\n[14] URL https://arxiv.org/abs/2311.01832\n[3] URL https://arxiv.org/abs/2207.09450\n[5] URL https://arxiv.org/abs/2212.06817\n[9] No URL given; maybe none.\n[30] No URL given; maybe none.\n[41] URL https://arxiv.org/abs/2403.07788\n[48] URL https://arxiv.org/abs/1710.04615\n[33] No URL given.\n[36] URL https://ieeexplore.ieee.org/abstract/document/9126187\n[4] URL https://proceedings.neurips.cc/paper_files/paper/2023/file/fe692980c5d9732cf153ce27947653a7-Paper-Conference.pdf\n[22] No URL.\n[45] No URL.\n\nProvide doi where present: [36] doi 10.1109/LRA.2020.3004787. Others maybe none.\n\nNow craft why_it_matters statements.\n\nProceed to final.\n",
+  "content": "{\n  \"themes\": [\n    {\n      \"theme\": \"Universal Manipulation Interface (UMI) and cross‑embodiment frameworks\",\n      \"papers\": [\n        {\n          \"ref_number\": 10,\n          \"title\": \"Universal manipulation interface: In-the-wild robot teaching without in-the-wild robots.\",\n          \"authors\": \"Cheng Chi, Zhenjia Xu, Chuer Pan, Eric Cousineau, Benjamin Burchfiel, Siyuan Feng, Russ Tedrake, and Shuran Song.\",\n          \"year\": 2024,\n          \"arxiv_id\": \"2402.10329\",\n          \"doi\": null,\n          \"url\": \"https://arxiv.org/abs/2402.10329\",\n          \"why_it_matters\": \"Introduces the UMI paradigm that abstracts away the specific gripper geometry, directly addressing how demonstrations collected with a handheld UMI‑style gripper can be re‑targeted to robots with different end‑effectors.\"\n        },\n        {\n          \"ref_number\": 30,\n          \"title\": \"Open x-embodiment: Robotic learning datasets and rt-x models: Open x-embodiment collaboration 0.\",\n          \"authors\": \"Abby O’Neill, Abdul Rehman, Abhiram Maddukuri, Abhishek Gupta, Abhishek Padalkar, Abraham Lee, Acorn Pooley, Agrim Gupta, Ajay Mandlekar, Ajinkya Jain, et al.\",\n          \"year\": 2024,\n          \"arxiv_id\": null,\n          \"doi\": null,\n          \"url\": null,\n          \"why_it_matters\": \"Provides a large, heterogeneous dataset spanning many robot morphologies, illustrating how policies trained on one embodiment can be transferred to others—a key precedent for cross‑embodiment transfer of handheld‑gripper data.\"\n        },\n        {\n          \"ref_number\": 3,\n          \"title\": \"Human-to-robot imitation in the wild\",\n          \"authors\": \"Shikhar Bahl, Abhinav Gupta, and Deepak Pathak.\",\n          \"year\": 2022,\n          \"arxiv_id\": \"2207.09450\",\n          \"doi\": null,\n          \"url\": \"https://arxiv.org/abs/2207.09450\",\n          \"why_it_matters\": \"Shows how demonstrations captured from humans (including handheld tools) can be leveraged to train robot policies, highlighting techniques for bridging the embodiment gap.\"\n        }\n      ]\n    },\n    {\n      \"theme\": \"Morphological gap and handheld‑gripper specific studies\",\n      \"papers\": [\n        {\n          \"ref_number\": 14,\n          \"title\": \"On hand-held grippers and the morphological gap in human manipulation demonstration.\",\n          \"authors\": \"Kiran Doshi, Yijiang Huang, and Stelian Coros.\",\n          \"year\": 2023,\n          \"arxiv_id\": \"2311.01832\",\n          \"doi\": null,\n          \"url\": \"https://arxiv.org/abs/2311.01832\",\n          \"why_it_matters\": \"Analyzes the specific challenges introduced by hand‑held grippers, offering insights into how to compensate for shape and kinematic differences when transferring data to robot end‑effectors.\"\n        },\n        {\n          \"ref_number\": 33,\n          \"title\": \"Scalable. intuitive human to robot skill transfer with wearable human machine interfaces: On complex, dexterous tasks.\",\n          \"authors\": \"Felipe Sanches, Geng Gao, Nathan Elangovan, Ricardo V Godoy, Jayden Chapman, Ke Wang, Patrick Jarvis, and Minas Liarokapis.\",\n          \"year\": 2023,\n          \"arxiv_id\": null,\n          \"doi\": null,\n          \"url\": null,\n          \"why_it_matters\": \"Demonstrates wearable interfaces that capture human hand motions and map them onto robot manipulators, a practical route for converting handheld‑gripper demonstrations into robot‑specific actions.\"\n        },\n        {\n          \"ref_number\": 41,\n          \"title\": \"Dexcap: Scalable and portable mocap data collection system for dexterous manipulation.\",\n          \"authors\": \"Chen Wang, Haochen Shi, Weizhuo Wang, Ruohan Zhang, Li Fei-Fei, and C Karen Liu.\",\n          \"year\": 2024,\n          \"arxiv_id\": \"2403.07788\",\n          \"doi\": null,\n          \"url\": \"https://arxiv.org/abs/2403.07788\",\n          \"why_it_matters\": \"Provides a motion‑capture pipeline that records fine‑grained hand and tool trajectories, enabling the extraction of embodiment‑agnostic features useful for cross‑robot transfer.\"\n        }\n      ]\n    },\n    {\n      \"theme\": \"Large‑scale demonstration datasets and teleoperation collection methods\",\n      \"papers\": [\n        {\n          \"ref_number\": 5,\n          \"title\": \"Rt-1: Robotics transformer for real-world control at scale.\",\n          \"authors\": \"Anthony Brohan, Noah Brown, Justice Carbajal, Yevgen Chebotar, Joseph Dabis, Chelsea Finn, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog, Jasmine Hsu, et al.\",\n          \"year\": 2022,\n          \"arxiv_id\": \"2212.06817\",\n          \"doi\": null,\n          \"url\": \"https://arxiv.org/abs/2212.06817\",\n          \"why_it_matters\": \"Shows how a transformer trained on millions of heterogeneous demonstrations can generalize across robot platforms, informing how handheld‑gripper data might be incorporated into a universal policy.\"\n        },\n        {\n          \"ref_number\": 48,\n          \"title\": \"Deep imitation learning for complex manipulation tasks from virtual reality teleoperation\",\n          \"authors\": \"Tianhao Zhang, Zoe McCarthy, Owen Jow, Dennis Lee, Xi Chen, Ken Goldberg, and Pieter Abbeel.\",\n          \"year\": 2018,\n          \"arxiv_id\": \"1710.04615\",\n          \"doi\": null,\n          \"url\": \"https://arxiv.org/abs/1710.04615\",\n          \"why_it_matters\": \"Uses VR teleoperation to collect high‑fidelity demonstrations that can be re‑targeted to different robot morphologies, a methodology directly applicable to handheld‑gripper data.\"\n        },\n        {\n          \"ref_number\": 36,\n          \"title\": \"Grasping in the Wild: Learning 6DoF Closed-Loop Grasping From Low-Cost Demonstrations.\",\n          \"authors\": \"Shuran Song, Andy Zeng, Johnny Lee, and Thomas Funkhouser.\",\n          \"year\": 2020,\n          \"arxiv_id\": null,\n          \"doi\": \"10.1109/LRA.2020.3004787\",\n          \"url\": \"https://ieeexplore.ieee.org/abstract/document/9126187\",\n          \"why_it_matters\": \"Collects low‑cost, handheld‑device demonstrations for grasping and trains policies that transfer to varied robot grippers, exemplifying cross‑embodiment learning.\"\n        }\n      ]\n    },\n    {\n      \"theme\": \"Policy learning from demonstrations (diffusion, imitation, data quality)\",\n      \"papers\": [\n        {\n          \"ref_number\": 9,\n          \"title\": \"Diffusion policy: Visuomotor policy learning via action diffusion.\",\n          \"authors\": \"Cheng Chi, Zhenjia Xu, Siyuan Feng, Eric Cousineau, Yilun Du, Benjamin Burchfiel, Russ Tedrake, and Shuran Song.\",\n          \"year\": 2023,\n          \"arxiv_id\": null,\n          \"doi\": null,\n          \"url\": null,\n          \"why_it_matters\": \"Provides a generative policy framework that can ingest demonstrations from any embodiment and synthesize actions for a target robot, useful for mapping handheld‑gripper trajectories to new end‑effectors.\"\n        },\n        {\n          \"ref_number\": 4,\n          \"title\": \"Data Quality in Imitation Learning.\",\n          \"authors\": \"Suneel Belkhale, Yuchen Cui, and Dorsa Sadigh.\",\n          \"year\": 2023,\n          \"arxiv_id\": null,\n          \"doi\": null,\n          \"url\": \"https://proceedings.neurips.cc/paper_files/paper/2023/file/fe692980c5d9732cf153ce27947653a7-Paper-Conference.pdf\",\n          \"why_it_matters\": \"Analyzes how noise and bias in demonstration data affect downstream policies, guiding the cleaning and re‑annotation of handheld‑gripper recordings before cross‑embodiment transfer.\"\n        },\n        {\n          \"ref_number\": 22,\n          \"title\": \"Imitation learning: A survey of learning methods.\",\n          \"authors\": \"Ahmed Hussein, Mohamed Medhat Gaber, Eyad Elyan, and Chrisina Jayne.\",\n          \"year\": 2017,\n          \"arxiv_id\": null,\n          \"doi\": null,\n          \"url\": null,\n          \"why_it_matters\": \"Offers a comprehensive taxonomy of imitation‑learning algorithms, helping researchers select approaches (e.g., behavior cloning vs. inverse RL) that are robust to embodiment mismatches.\"\n        }\n      ]\n    }\n  ]\n}",
+  "parsed": {
+    "themes": [
+      {
+        "theme": "Universal Manipulation Interface (UMI) and cross‑embodiment frameworks",
+        "papers": [
+          {
+            "ref_number": 10,
+            "title": "Universal manipulation interface: In-the-wild robot teaching without in-the-wild robots.",
+            "authors": "Cheng Chi, Zhenjia Xu, Chuer Pan, Eric Cousineau, Benjamin Burchfiel, Siyuan Feng, Russ Tedrake, and Shuran Song.",
+            "year": 2024,
+            "arxiv_id": "2402.10329",
+            "doi": null,
+            "url": "https://arxiv.org/abs/2402.10329",
+            "why_it_matters": "Introduces the UMI paradigm that abstracts away the specific gripper geometry, directly addressing how demonstrations collected with a handheld UMI‑style gripper can be re‑targeted to robots with different end‑effectors."
+          },
+          {
+            "ref_number": 30,
+            "title": "Open x-embodiment: Robotic learning datasets and rt-x models: Open x-embodiment collaboration 0.",
+            "authors": "Abby O’Neill, Abdul Rehman, Abhiram Maddukuri, Abhishek Gupta, Abhishek Padalkar, Abraham Lee, Acorn Pooley, Agrim Gupta, Ajay Mandlekar, Ajinkya Jain, et al.",
+            "year": 2024,
+            "arxiv_id": null,
+            "doi": null,
+            "url": null,
+            "why_it_matters": "Provides a large, heterogeneous dataset spanning many robot morphologies, illustrating how policies trained on one embodiment can be transferred to others—a key precedent for cross‑embodiment transfer of handheld‑gripper data."
+          },
+          {
+            "ref_number": 3,
+            "title": "Human-to-robot imitation in the wild",
+            "authors": "Shikhar Bahl, Abhinav Gupta, and Deepak Pathak.",
+            "year": 2022,
+            "arxiv_id": "2207.09450",
+            "doi": null,
+            "url": "https://arxiv.org/abs/2207.09450",
+            "why_it_matters": "Shows how demonstrations captured from humans (including handheld tools) can be leveraged to train robot policies, highlighting techniques for bridging the embodiment gap."
+          }
+        ]
+      },
+      {
+        "theme": "Morphological gap and handheld‑gripper specific studies",
+        "papers": [
+          {
+            "ref_number": 14,
+            "title": "On hand-held grippers and the morphological gap in human manipulation demonstration.",
+            "authors": "Kiran Doshi, Yijiang Huang, and Stelian Coros.",
+            "year": 2023,
+            "arxiv_id": "2311.01832",
+            "doi": null,
+            "url": "https://arxiv.org/abs/2311.01832",
+            "why_it_matters": "Analyzes the specific challenges introduced by hand‑held grippers, offering insights into how to compensate for shape and kinematic differences when transferring data to robot end‑effectors."
+          },
+          {
+            "ref_number": 33,
+            "title": "Scalable. intuitive human to robot skill transfer with wearable human machine interfaces: On complex, dexterous tasks.",
+            "authors": "Felipe Sanches, Geng Gao, Nathan Elangovan, Ricardo V Godoy, Jayden Chapman, Ke Wang, Patrick Jarvis, and Minas Liarokapis.",
+            "year": 2023,
+            "arxiv_id": null,
+            "doi": null,
+            "url": null,
+            "why_it_matters": "Demonstrates wearable interfaces that capture human hand motions and map them onto robot manipulators, a practical route for converting handheld‑gripper demonstrations into robot‑specific actions."
+          },
+          {
+            "ref_number": 41,
+            "title": "Dexcap: Scalable and portable mocap data collection system for dexterous manipulation.",
+            "authors": "Chen Wang, Haochen Shi, Weizhuo Wang, Ruohan Zhang, Li Fei-Fei, and C Karen Liu.",
+            "year": 2024,
+            "arxiv_id": "2403.07788",
+            "doi": null,
+            "url": "https://arxiv.org/abs/2403.07788",
+            "why_it_matters": "Provides a motion‑capture pipeline that records fine‑grained hand and tool trajectories, enabling the extraction of embodiment‑agnostic features useful for cross‑robot transfer."
+          }
+        ]
+      },
+      {
+        "theme": "Large‑scale demonstration datasets and teleoperation collection methods",
+        "papers": [
+          {
+            "ref_number": 5,
+            "title": "Rt-1: Robotics transformer for real-world control at scale.",
+            "authors": "Anthony Brohan, Noah Brown, Justice Carbajal, Yevgen Chebotar, Joseph Dabis, Chelsea Finn, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog, Jasmine Hsu, et al.",
+            "year": 2022,
+            "arxiv_id": "2212.06817",
+            "doi": null,
+            "url": "https://arxiv.org/abs/2212.06817",
+            "why_it_matters": "Shows how a transformer trained on millions of heterogeneous demonstrations can generalize across robot platforms, informing how handheld‑gripper data might be incorporated into a universal policy."
+          },
+          {
+            "ref_number": 48,
+            "title": "Deep imitation learning for complex manipulation tasks from virtual reality teleoperation",
+            "authors": "Tianhao Zhang, Zoe McCarthy, Owen Jow, Dennis Lee, Xi Chen, Ken Goldberg, and Pieter Abbeel.",
+            "year": 2018,
+            "arxiv_id": "1710.04615",
+            "doi": null,
+            "url": "https://arxiv.org/abs/1710.04615",
+            "why_it_matters": "Uses VR teleoperation to collect high‑fidelity demonstrations that can be re‑targeted to different robot morphologies, a methodology directly applicable to handheld‑gripper data."
+          },
+          {
+            "ref_number": 36,
+            "title": "Grasping in the Wild: Learning 6DoF Closed-Loop Grasping From Low-Cost Demonstrations.",
+            "authors": "Shuran Song, Andy Zeng, Johnny Lee, and Thomas Funkhouser.",
+            "year": 2020,
+            "arxiv_id": null,
+            "doi": "10.1109/LRA.2020.3004787",
+            "url": "https://ieeexplore.ieee.org/abstract/document/9126187",
+            "why_it_matters": "Collects low‑cost, handheld‑device demonstrations for grasping and trains policies that transfer to varied robot grippers, exemplifying cross‑embodiment learning."
+          }
+        ]
+      },
+      {
+        "theme": "Policy learning from demonstrations (diffusion, imitation, data quality)",
+        "papers": [
+          {
+            "ref_number": 9,
+            "title": "Diffusion policy: Visuomotor policy learning via action diffusion.",
+            "authors": "Cheng Chi, Zhenjia Xu, Siyuan Feng, Eric Cousineau, Yilun Du, Benjamin Burchfiel, Russ Tedrake, and Shuran Song.",
+            "year": 2023,
+            "arxiv_id": null,
+            "doi": null,
+            "url": null,
+            "why_it_matters": "Provides a generative policy framework that can ingest demonstrations from any embodiment and synthesize actions for a target robot, useful for mapping handheld‑gripper trajectories to new end‑effectors."
+          },
+          {
+            "ref_number": 4,
+            "title": "Data Quality in Imitation Learning.",
+            "authors": "Suneel Belkhale, Yuchen Cui, and Dorsa Sadigh.",
+            "year": 2023,
+            "arxiv_id": null,
+            "doi": null,
+            "url": "https://proceedings.neurips.cc/paper_files/paper/2023/file/fe692980c5d9732cf153ce27947653a7-Paper-Conference.pdf",
+            "why_it_matters": "Analyzes how noise and bias in demonstration data affect downstream policies, guiding the cleaning and re‑annotation of handheld‑gripper recordings before cross‑embodiment transfer."
+          },
+          {
+            "ref_number": 22,
+            "title": "Imitation learning: A survey of learning methods.",
+            "authors": "Ahmed Hussein, Mohamed Medhat Gaber, Eyad Elyan, and Chrisina Jayne.",
+            "year": 2017,
+            "arxiv_id": null,
+            "doi": null,
+            "url": null,
+            "why_it_matters": "Offers a comprehensive taxonomy of imitation‑learning algorithms, helping researchers select approaches (e.g., behavior cloning vs. inverse RL) that are robust to embodiment mismatches."
+          }
+        ]
+      }
+    ]
+  },
+  "parse_ok": true
+}

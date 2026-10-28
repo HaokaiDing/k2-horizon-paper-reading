@@ -1,0 +1,337 @@
+{
+  "1_takeaways_quotes": {
+    "n": 18,
+    "verbatim": 16,
+    "verbatim_ignoring_citation_markers": 18,
+    "rows": [
+      {
+        "kind": "findings",
+        "point": "FastUMI releases a large-scale real-world dataset of over 10,000 demonstration trajectories covering 22 everyday tasks, 19 object categories, and 12 manipulation skills, with demonstrations lasting approximately 6-12 seconds.",
+        "quote": "we have open-sourced a high-quality dataset of over 10,000 real-world demonstration trajectories spanning 22 everyday tasks, forming one of the most diverse UMI-like datasets to date.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "findings",
+        "point": "Pose tracking accuracy differs by sensor and occlusion level: in the low-occlusion Pick Cup task T265 averages 10.5 mm error versus MINI's 15.2 mm, but in the occluded Open Container task T265 degrades to 17.7 mm while MINI improves to 11.2 mm.",
+        "quote": "In the \"Pick Cup\" scenario, where occlusion is minimal, T265 achieves an average positioning error of 10.5 mm, while MINI's error averages 15.2 mm.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "findings",
+        "point": "Adding estimated depth to Diffusion Policy yields large gains on precision tasks: success rises from 53.33% to 80.00% on Pick Lid and from 20.00% to 93.33% on Open Ricecooker.",
+        "quote": "success rates increase by 26.67% on \"Pick Lid\" and 73.33% on \"Open Ricecooker.\"",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "findings",
+        "point": "ACT variants improve over baseline ACT: on Pick Bear, Smooth-ACT reaches 60.00% and PoseACT (Absolute) reaches 80.00% versus 20.00% for original ACT; on Sweep Trash, PoseACT (Relative) reaches 60.00% versus 6.67% baseline.",
+        "quote": "Pick Bear 20.00% 60.00% 80.00% 73.33%",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "findings",
+        "point": "Policy performance scales with training data size: on the Pick Cup task, success rates increase from 20.00% with 200 demonstrations to 26.67% with 400 and 53.33% with 800 demonstrations.",
+        "quote": "Pick Cup 20.00% 26.67% 53.33%",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "findings",
+        "point": "A single fisheye GoPro at the end-effector achieves performance comparable to multi-view camera setups, e.g., 100.00% on Open Container for both fisheye first-person and D435i multi-view configurations.",
+        "quote": "a fisheye lens at the end-effector achieves performance comparable to multi-view setups, potentially because its wide field of view captures richer contextual information for decision-making.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "methods",
+        "point": "Hardware decoupling via standardized, modular components: ISO-standard flange plates, plug-in fingertip attachments for five common grippers covering over 90% of grippers in open-source datasets, and adjustable camera mounts maintain consistent GoPro viewpoints across platforms.",
+        "quote": "we design five customized fingertip attachments (e.g., the xArm gripper and Robotiq 2f-85) based on commonly used grippers in open-source datasets such as Open X-Embodiment, covering over 90% of the grippers in these datasets.",
+        "verbatim": false,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "methods",
+        "point": "The GoPro-based VIO pipeline is replaced with an off-the-shelf RealSense T265 tracking module, eliminating complex calibration and coordinate transformations while maintaining pose accuracy under partial occlusion.",
+        "quote": "we replace the UMI's VIO-based localization with a RealSense T265 module, which integrates both visual and inertial data to provide more stable tracking in partially occluded environments.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "methods",
+        "point": "Multi-sensor synchronization is achieved by sub-sampling the 200 Hz T265 stream and 60 fps GoPro stream at their greatest common frequency of 20 Hz, pairing each retained frame with the temporally nearest pose for sub-millisecond alignment.",
+        "quote": "We then sub-sample both streams at 20 Hz—identified as the greatest common frequency between 200 Hz and 60 Hz—by retaining one in every three camera frames and pairing each retained frame with the temporally nearest T265 pose.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "methods",
+        "point": "T265 drift is managed through reinitialization at a predefined reference pose and loop closure using a visually distinct blue 3D-printed groove on the table as a reference region.",
+        "quote": "Another strategy leverages a visually distinct reference region—a blue 3D-printed groove on the table (Fig. 5 Left)—to facilitate loop closure.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "methods",
+        "point": "Smooth-ACT adds a GRU layer on top of the Transformer decoder to enforce local temporal continuity of joint actions, while PoseACT replaces absolute joint prediction with end-effector TCP pose prediction (absolute or relative) mapped back to joints via inverse kinematics.",
+        "quote": "we introduce Smooth-ACT, which enhances action continuity by incorporating a Gated Recurrent Unit (GRU) layer on top of the Transformer decoder",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "methods",
+        "point": "Depth-Enhanced DP generates depth maps offline with Depth Anything V2 on cropped 448x448 images, encodes them as pseudo-color three-channel maps alongside RGB in a shared CLIP ViT encoder, and runs the large model at 20 Hz on an RTX 4090 during inference.",
+        "quote": "we implement Depth Anything V2 with its large pre-trained model, achieving an inference frequency of 20 Hz on an RTX 4090 GPU.",
+        "verbatim": false,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "methods",
+        "point": "A dynamic error-compensation algorithm corrects TCP displacement from non-parallel gripper jaws by computing a width-dependent compensation distance and shifting the commanded TCP along its local Z-axis before inverse kinematics.",
+        "quote": "we propose a dynamic error-compensation algorithm that adjusts the commanded TCP in real time.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": null
+      },
+      {
+        "kind": "limitations",
+        "point": "FastUMI relies only on visual data, which is insufficient for tasks requiring precise force or tactile feedback such as handling fragile objects; integrating tactile or force sensors is left to future work.",
+        "quote": "FastUMI currently relies on visual data, which may prove insufficient for tasks requiring precise force or tactile feedback—such as handling fragile objects.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": true
+      },
+      {
+        "kind": "limitations",
+        "point": "The system supports single-arm and dual-arm platforms but is not yet adapted to more complex morphologies such as mobile manipulators requiring whole-body control.",
+        "quote": "Although FastUMI accommodates single-arm or dual-arm platforms, it is not yet adapted for more complex morphologies, including mobile manipulators requiring whole-body control.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": true
+      },
+      {
+        "kind": "limitations",
+        "point": "Wired data transfer constrains portability and limits field applications where mobility or standalone operation is needed; a wireless solution is identified as future work.",
+        "quote": "Reliance on wired connections constrains portability and limits field applications where mobility or standalone operation is pivotal.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": true
+      },
+      {
+        "kind": "limitations",
+        "point": "Not all gripper types are supported by the fingertip attachments, though the design can be readily adapted as needed.",
+        "quote": "Although not all gripper types are yet supported, our design can be readily adapted as needed.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": true
+      },
+      {
+        "kind": "limitations",
+        "point": "T265 tracking is susceptible to severe close-range visual occlusion and low-light conditions, which reduce confidence levels and increase drift, requiring reinitialization when loop closure fails.",
+        "quote": "T265 is particularly susceptible to severe visual obstruction at close range.",
+        "verbatim": true,
+        "verbatim_ignoring_citation_markers": true,
+        "stated_by_authors": true
+      }
+    ]
+  },
+  "2a_related_free": {
+    "n": 11,
+    "counts": {
+      "not_found": 11
+    },
+    "rows": [
+      {
+        "title": "Cross‑Embodiment Transfer of Manipulation Policies",
+        "claimed_arxiv_id": "2004.08384",
+        "arxiv_title_at_id": "Tightening Time-Energy Uncertainty Relations",
+        "id_title_similarity": 0.35,
+        "status": "not_found",
+        "theme": "Cross‑embodiment policy transfer"
+      },
+      {
+        "title": "Learning to Generalize across Robot Embodiments",
+        "claimed_arxiv_id": "2009.01857",
+        "arxiv_title_at_id": "Canonical X-Ray Fluorescence Line Intensities as Column Density Indicators",
+        "id_title_similarity": 0.23,
+        "status": "not_found",
+        "theme": "Cross‑embodiment policy transfer"
+      },
+      {
+        "title": "Cross‑Embodiment Imitation Learning for Robot Manipulation",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Cross‑embodiment policy transfer"
+      },
+      {
+        "title": "Learning from Human Videos for Robot Manipulation",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Cross‑embodiment policy transfer"
+      },
+      {
+        "title": "Learning from Demonstration for Robot Manipulation with a Handheld Gripper",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Handheld‑gripper demonstration collection and teleoperation"
+      },
+      {
+        "title": "MimicGen: Learning from Human Demonstrations for Robot Manipulation",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Handheld‑gripper demonstration collection and teleoperation"
+      },
+      {
+        "title": "Learning to Use Tools with a Robot Hand",
+        "claimed_arxiv_id": "2106.04567",
+        "arxiv_title_at_id": "Non-Hermitian skin effect of dislocations and its topological origin",
+        "id_title_similarity": 0.23,
+        "status": "not_found",
+        "theme": "Tool‑use and gripper‑agnostic representations"
+      },
+      {
+        "title": "Domain Randomization for Sim‑to‑Real Transfer of Grasping with Diverse Hands",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Tool‑use and gripper‑agnostic representations"
+      },
+      {
+        "title": "Learning Grasp Affordances for Novel End‑Effectors via Contrastive Learning",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Learning grasp affordances for unseen end‑effectors"
+      },
+      {
+        "title": "Self‑Supervised Adaptation of Policies to New Grippers",
+        "claimed_arxiv_id": "2403.05678",
+        "arxiv_title_at_id": "Ellipsephic harmonic series revisited",
+        "id_title_similarity": 0.27,
+        "status": "not_found",
+        "theme": "Self‑supervised and meta‑learning adaptation to new grippers"
+      },
+      {
+        "title": "Meta‑Learning for Rapid Adaptation to New Robot Hands",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Self‑supervised and meta‑learning adaptation to new grippers"
+      }
+    ]
+  },
+  "2b_related_refs": {
+    "n": 12,
+    "counts": {
+      "verified_id": 6,
+      "not_found": 2,
+      "found_by_title": 4
+    },
+    "rows": [
+      {
+        "title": "Universal manipulation interface: In-the-wild robot teaching without in-the-wild robots.",
+        "claimed_arxiv_id": "2402.10329",
+        "arxiv_title_at_id": "Universal Manipulation Interface: In-The-Wild Robot Teaching Without In-The-Wild Robots",
+        "id_title_similarity": 1.0,
+        "status": "verified_id",
+        "theme": "Universal Manipulation Interface (UMI) and cross‑embodiment frameworks"
+      },
+      {
+        "title": "Open x-embodiment: Robotic learning datasets and rt-x models: Open x-embodiment collaboration 0.",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Universal Manipulation Interface (UMI) and cross‑embodiment frameworks"
+      },
+      {
+        "title": "Human-to-robot imitation in the wild",
+        "claimed_arxiv_id": "2207.09450",
+        "arxiv_title_at_id": "Human-to-Robot Imitation in the Wild",
+        "id_title_similarity": 1.0,
+        "status": "verified_id",
+        "theme": "Universal Manipulation Interface (UMI) and cross‑embodiment frameworks"
+      },
+      {
+        "title": "On hand-held grippers and the morphological gap in human manipulation demonstration.",
+        "claimed_arxiv_id": "2311.01832",
+        "arxiv_title_at_id": "On Hand-Held Grippers and the Morphological Gap in Human Manipulation Demonstration",
+        "id_title_similarity": 1.0,
+        "status": "verified_id",
+        "theme": "Morphological gap and handheld‑gripper specific studies"
+      },
+      {
+        "title": "Scalable. intuitive human to robot skill transfer with wearable human machine interfaces: On complex, dexterous tasks.",
+        "claimed_arxiv_id": null,
+        "found_doi": "10.1109/iros55552.2023.10341661",
+        "found_title": "Scalable. Intuitive Human to Robot Skill Transfer with Wearable Human Machine Interfaces: On Complex, Dexterous Tasks",
+        "status": "found_by_title",
+        "theme": "Morphological gap and handheld‑gripper specific studies"
+      },
+      {
+        "title": "Dexcap: Scalable and portable mocap data collection system for dexterous manipulation.",
+        "claimed_arxiv_id": "2403.07788",
+        "arxiv_title_at_id": "DexCap: Scalable and Portable Mocap Data Collection System for Dexterous Manipulation",
+        "id_title_similarity": 1.0,
+        "status": "verified_id",
+        "theme": "Morphological gap and handheld‑gripper specific studies"
+      },
+      {
+        "title": "Rt-1: Robotics transformer for real-world control at scale.",
+        "claimed_arxiv_id": "2212.06817",
+        "arxiv_title_at_id": "RT-1: Robotics Transformer for Real-World Control at Scale",
+        "id_title_similarity": 1.0,
+        "status": "verified_id",
+        "theme": "Large‑scale demonstration datasets and teleoperation collection methods"
+      },
+      {
+        "title": "Deep imitation learning for complex manipulation tasks from virtual reality teleoperation",
+        "claimed_arxiv_id": "1710.04615",
+        "arxiv_title_at_id": "Deep Imitation Learning for Complex Manipulation Tasks from Virtual Reality Teleoperation",
+        "id_title_similarity": 1.0,
+        "status": "verified_id",
+        "theme": "Large‑scale demonstration datasets and teleoperation collection methods"
+      },
+      {
+        "title": "Grasping in the Wild: Learning 6DoF Closed-Loop Grasping From Low-Cost Demonstrations.",
+        "claimed_arxiv_id": null,
+        "found_doi": "10.1109/lra.2020.3004787",
+        "found_title": "Grasping in the Wild: Learning 6DoF Closed-Loop Grasping From Low-Cost Demonstrations",
+        "status": "found_by_title",
+        "theme": "Large‑scale demonstration datasets and teleoperation collection methods"
+      },
+      {
+        "title": "Diffusion policy: Visuomotor policy learning via action diffusion.",
+        "claimed_arxiv_id": null,
+        "found_id": "10.48550/arxiv.2303.04137",
+        "found_title": "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion",
+        "status": "found_by_title",
+        "theme": "Policy learning from demonstrations (diffusion, imitation, data quality)"
+      },
+      {
+        "title": "Data Quality in Imitation Learning.",
+        "claimed_arxiv_id": null,
+        "found_id": "10.48550/arxiv.2306.02437",
+        "found_title": "Data Quality in Imitation Learning",
+        "status": "found_by_title",
+        "theme": "Policy learning from demonstrations (diffusion, imitation, data quality)"
+      },
+      {
+        "title": "Imitation learning: A survey of learning methods.",
+        "claimed_arxiv_id": null,
+        "status": "not_found",
+        "theme": "Policy learning from demonstrations (diffusion, imitation, data quality)"
+      }
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+.env
+workflow/data/fastumi.html
+workflow/runs/verify_cache.json
+__pycache__/
+submission/
+.DS_Store
