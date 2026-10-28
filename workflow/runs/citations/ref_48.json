@@ -1,0 +1,31 @@
+{
+  "ref": 48,
+  "arxiv_id": "1710.04615",
+  "entry": "Tianhao Zhang, Zoe McCarthy, Owen Jow, Dennis Lee, Xi Chen, Ken Goldberg, and Pieter Abbeel. Deep imitation learning for complex manipulation tasks from virtual reality teleoperation, 2018. URL https://arxiv.org/abs/1710.04615.",
+  "contexts": [
+    "Current methods can be broadly categorized into teleoperation-based techniques [51, 16, 47, 42], vision-driven demonstrations [3, 26], and sensor-enhanced interfaces [6, 40, 48].",
+    "This approach enables researchers to intuitively gather demonstration data, establishing a direct correspondence between observed visual inputs and associated actions [48]."
+  ],
+  "model": "IFM/K2-Horizon-375B-A23B",
+  "latency_s": 6.92,
+  "usage": {
+    "completion_tokens": 560,
+    "prompt_tokens": 11920,
+    "total_tokens": 12480,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "source_chars": 47066,
+  "source_truncated": false,
+  "reasoning_effort": "medium",
+  "reasoning": "We need to decide if reference [48] (Zhang et al. 2018 VR teleoperation) supports FastUMI's claims. FastUMI sentences:\n\n1. \"Current methods can be broadly categorized into teleoperation-based techniques [51, 16, 47, 42], vision-driven demonstrations [3, 26], and sensor-enhanced interfaces [6, 40, 48].\"\n\nSo [48] is used as an example of sensor-enhanced interfaces. The cited paper is about VR teleoperation using consumer-grade VR headset and hand tracking hardware to teleoperate a PR2 robot, collecting demonstrations for imitation learning. Is that a \"sensor-enhanced interface\"? It uses VR headset and hand controllers, which are sensors. It is a teleoperation-based technique, arguably sensor-enhanced. The claim is that [48] is a sensor-enhanced interface. The paper describes a VR teleoperation system that uses sensors (headset, controllers) to enhance interface. That seems plausible.\n\n2. \"This approach enables researchers to intuitively gather demonstration data, establishing a direct correspondence between observed visual inputs and associated actions [48].\"\n\nThe paper indeed says VR teleoperation allows direct mapping of observations and actions between teacher and robot, eliminating correspondence issues. Quote: \"Virtual Reality teleoperation allows for a direct mapping of observations and actions between the teacher and the robot and does not suffer from the above correspondence issues [3]\" and also \"This setup ensures that the human and the robot share exactly the same observation and action space, eliminating the possibility of the human making any decision based on information not available to the robot\". So supports.\n\nThus status supported. Need quote max 60 words verbatim. Choose a passage that supports both. Maybe: \"Virtual Reality teleoperation allows for a direct mapping of observations and actions between the teacher and the robot and does not suffer from the above correspondence issues\". That's 24 words. Also \"This setup ensures that the human and the robot share exactly the same observation and action space\". Could combine? Must be verbatim contiguous? Probably can pick one. Use the first.\n\nClaim: FastUMI relies on [48] as an example of sensor-enhanced teleoperation interface that lets researchers intuitively collect demonstrations with direct visual-action correspondence.\n\nReturn JSON.\n",
+  "content": "{\"claim\":\"FastUMI cites [48] as a sensor-enhanced teleoperation interface that lets researchers intuitively collect demonstration data with a direct correspondence between visual inputs and actions.\",\"status\":\"supported\",\"quote\":\"Virtual Reality teleoperation allows for a direct mapping of observations and actions between the teacher and the robot and does not suffer from the above correspondence issues\",\"reason\":\"The cited paper describes a VR teleoperation system using headset and hand-tracking sensors that provides a direct observation-action mapping, matching FastUMI's characterization of sensor-enhanced interfaces for intuitive demonstration collection.\"}",
+  "parsed": {
+    "claim": "FastUMI cites [48] as a sensor-enhanced teleoperation interface that lets researchers intuitively collect demonstration data with a direct correspondence between visual inputs and actions.",
+    "status": "supported",
+    "quote": "Virtual Reality teleoperation allows for a direct mapping of observations and actions between the teacher and the robot and does not suffer from the above correspondence issues",
+    "reason": "The cited paper describes a VR teleoperation system using headset and hand-tracking sensors that provides a direct observation-action mapping, matching FastUMI's characterization of sensor-enhanced interfaces for intuitive demonstration collection."
+  },
+  "reasoning_leaked_into_content": false,
+  "quote_found_in_source": true
+}

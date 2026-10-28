@@ -1,0 +1,28 @@
+{
+  "ref": 26,
+  "arxiv_id": "1603.02199",
+  "entry": "Sergey Levine, Peter Pastor, Alex Krizhevsky, and Deirdre Quillen. Learning hand-eye coordination for robotic grasping with deep learning and large-scale data collection, 2016. URL https://arxiv.org/abs/1603.02199.",
+  "contexts": [
+    "Current methods can be broadly categorized into teleoperation-based techniques [51, 16, 47, 42], vision-driven demonstrations [3, 26], and sensor-enhanced interfaces [6, 40, 48]."
+  ],
+  "model": "IFM/K2-Horizon-375B-A23B",
+  "latency_s": 6.42,
+  "usage": {
+    "completion_tokens": 425,
+    "prompt_tokens": 13558,
+    "total_tokens": 13983,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "source_chars": 55661,
+  "source_truncated": false,
+  "reasoning": "We need to decide if reference [26] supports FastUMI's use. FastUMI sentence: \"Current methods can be broadly categorized into teleoperation-based techniques [51, 16, 47, 42], vision-driven demonstrations [3, 26], and sensor-enhanced interfaces [6, 40, 48].\"\n\nSo they cite [26] as an example of \"vision-driven demonstrations\". The cited paper is Levine et al. 2016 \"Learning Hand-Eye Coordination for Robotic Grasping with Deep Learning and Large-Scale Data Collection\". Is that a vision-driven demonstration? It is a learning-based approach using monocular images to servo grasping, i.e., vision-driven grasping. It is not a teleoperation demonstration, but a vision-driven method. So it supports the categorization as vision-driven demonstration. The claim: FastUMI relies on [26] as an example of vision-driven demonstration methods. The paper indeed presents a vision-driven grasping method using deep learning from monocular images. So supported.\n\nNeed quote from cited paper that shows vision-driven demonstration. Perhaps abstract: \"We describe a learning-based approach to hand-eye coordination for robotic grasping from monocular images.\" That indicates vision-driven. Or \"Our approach ... uses a deep convolutional neural network to determine how likely a given motion is to produce a successful grasp, and a continuous servoing mechanism that uses the CNN to continuously update the robot’s motor commands.\" That is vision-driven. Provide quote <=60 words.\n\nQuote: \"We describe a learning-based approach to hand-eye coordination for robotic grasping from monocular images.\" That's 15 words. Good.\n\nThus status supported.\n\nReturn JSON.\n",
+  "content": "{\n  \"claim\": \"FastUMI cites reference [26] as an example of a vision-driven demonstration method for robotic manipulation.\",\n  \"status\": \"supported\",\n  \"quote\": \"We describe a learning-based approach to hand-eye coordination for robotic grasping from monocular images.\",\n  \"reason\": \"The cited paper presents a vision-driven grasping system that learns hand-eye coordination from monocular camera images, fitting FastUMI's categorization of vision-driven demonstrations.\"\n}",
+  "parsed": {
+    "claim": "FastUMI cites reference [26] as an example of a vision-driven demonstration method for robotic manipulation.",
+    "status": "supported",
+    "quote": "We describe a learning-based approach to hand-eye coordination for robotic grasping from monocular images.",
+    "reason": "The cited paper presents a vision-driven grasping system that learns hand-eye coordination from monocular camera images, fitting FastUMI's categorization of vision-driven demonstrations."
+  },
+  "quote_found_in_source": true
+}

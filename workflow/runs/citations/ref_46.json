@@ -1,0 +1,29 @@
+{
+  "ref": 46,
+  "arxiv_id": "2403.03954",
+  "entry": "Yanjie Ze, Gu Zhang, Kangning Zhang, Chenyuan Hu, Muhan Wang, and Huazhe Xu. 3d diffusion policy. arXiv preprint arXiv:2403.03954, 2024.",
+  "contexts": [
+    "While existing works incorporating depth into DP often rely on dedicated sensors to capture real-time depth data [46, 24], we aim to explore a more lightweight and efficient approach without adding hardware complexity or additional costs."
+  ],
+  "model": "IFM/K2-Horizon-375B-A23B",
+  "latency_s": 6.32,
+  "usage": {
+    "completion_tokens": 415,
+    "prompt_tokens": 20044,
+    "total_tokens": 20459,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "source_chars": 72486,
+  "source_truncated": false,
+  "reasoning": "",
+  "content": "We need to decide if reference [46] (3D Diffusion Policy) supports FastUMI's claim: \"While existing works incorporating depth into DP often rely on dedicated sensors to capture real-time depth data [46, 24], we aim to explore a more lightweight and efficient approach without adding hardware complexity or additional costs.\"\n\nSo FastUMI uses [46] to support that existing works incorporating depth into DP rely on dedicated sensors to capture real-time depth data. Does 3D Diffusion Policy rely on dedicated sensors? In the cited paper, they use a RealSense L515 camera to obtain depth images. That's a dedicated depth sensor. They also mention \"We use one RealSense L515 camera to obtain real-world visual observations.\" So yes, they rely on a dedicated depth sensor. The claim is about \"existing works incorporating depth into DP often rely on dedicated sensors to capture real-time depth data\". The cited paper does use a RealSense L515 depth camera. So it supports the claim that depth-based DP uses dedicated sensors. However, the claim says \"often rely\" and cites [46] as an example. The paper indeed uses a RealSense L515. So supported.\n\nNeed quote from cited paper: \"We use one RealSense L515 camera to obtain real-world visual observations.\" That's verbatim. Also maybe \"For both simulation and the real world, we obtain depth images with size 84 × 84 from a single camera.\" But the sensor mention is clear.\n\nThus status supported. Provide claim, quote, reason.\n</ifm|think>\n{\"claim\": \"FastUMI cites [46] as an example of existing depth-based diffusion policy works that rely on dedicated sensors to capture real-time depth data.\", \"status\": \"supported\", \"quote\": \"We use one RealSense L515 camera to obtain real-world visual observations.\", \"reason\": \"The cited paper explicitly states that it uses a RealSense L515 depth camera to obtain visual observations, confirming that this depth-based diffusion policy work relies on a dedicated depth sensor, which supports FastUMI's characterization.\"}",
+  "parsed": {
+    "claim": "FastUMI cites [46] as an example of existing depth-based diffusion policy works that rely on dedicated sensors to capture real-time depth data.",
+    "status": "supported",
+    "quote": "We use one RealSense L515 camera to obtain real-world visual observations.",
+    "reason": "The cited paper explicitly states that it uses a RealSense L515 depth camera to obtain visual observations, confirming that this depth-based diffusion policy work relies on a dedicated depth sensor, which supports FastUMI's characterization."
+  },
+  "reasoning_leaked_into_content": true,
+  "quote_found_in_source": true
+}

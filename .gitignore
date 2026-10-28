@@ -4,3 +4,5 @@ workflow/runs/verify_cache.json
 __pycache__/
 submission/
 .DS_Store
+workflow/data/cited/
+workflow/dataset/work/

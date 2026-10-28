@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot-Manipulation Demonstration Collection Systems</title>
+<style>
+  :root{
+    --bg:#f6f8fa; --card:#ffffff; --ink:#1a202c; --muted:#5a6472;
+    --line:#d7dee6; --accent:#1f6feb; --good:#1a7f37; --warn:#9a6700;
+    --method-colors:#1f6feb #2e8b57 #b8860b #7b3fb3 #c2185b #455a64 #00838f #8d6e63;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:16px}
+  h1{font-size:1.5rem;margin:.2em 0 .6em}
+  h2{font-size:1.15rem;margin:1.4em 0 .5em}
+  .wrap{max-width:1200px;margin:0 auto}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:1em 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .card .label{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
+  .card .value{font-size:1.7rem;font-weight:700;display:block}
+  .card .sub{font-size:.82rem;color:var(--muted)}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:1.2em 0}
+  .grid2{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+  svg{width:100%;height:auto;display:block}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.82rem;color:var(--muted);margin-top:8px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:8px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{position:sticky;top:0;background:var(--card);font-weight:600}
+  tr:hover{background:#f0f4f8}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  input,select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:.95rem;width:100%;margin-bottom:10px}
+  .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(min-width:640px){.filters{grid-template-columns:2fr 1fr 1fr 1fr}}
+  .note{background:#fff8e6;border:1px solid #f0d784;border-radius:8px;padding:10px 12px;font-size:.88rem;color:#6b5300;margin:1em 0}
+  .calc{font-size:.92rem}
+  .calc li{margin:.35em 0}
+  .toplist{list-style:none;padding:0;margin:8px 0 0}
+  .toplist li{padding:5px 0;border-bottom:1px dashed var(--line)}
+  .muted{color:var(--muted)}
+  .bar-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin:6px 0 2px}
+  .bar-track{height:18px;background:#e9edf2;border-radius:9px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:9px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>How are robot-manipulation demonstrations collected?</h1>
+  <p class="muted" id="subtitle"></p>
+
+  <div class="cards" id="kpis">
+    <div class="card"><div class="label">Papers</div><span class="value" id="kpi-total">-</span></div>
+    <div class="card"><div class="label">From 2025 or later</div><span class="value" id="kpi-recent">-</span><span class="sub" id="kpi-recent-sub"></span></div>
+    <div class="card"><div class="label">Robot-free collection</div><span class="value" id="kpi-robotfree">-</span><span class="sub" id="kpi-robotfree-sub"></span></div>
+    <div class="card"><div class="label">Releases a dataset</div><span class="value" id="kpi-releases">-</span><span class="sub" id="kpi-releases-sub"></span></div>
+    <div class="card"><div class="label">Cross-embodiment</div><span class="value" id="kpi-xemb">-</span><span class="sub" id="kpi-xemb-sub"></span></div>
+    <div class="card"><div class="label">Handheld-gripper papers</div><span class="value" id="kpi-handheld">-</span><span class="sub" id="kpi-handheld-sub"></span></div>
+    <div class="card"><div class="label">Median stated demos</div><span class="value" id="kpi-median">-</span><span class="sub" id="kpi-median-sub"></span></div>
+  </div>
+
+  <div class="note">
+    Labels were produced by K2 Horizon from paper titles and abstracts; a relevance spot check found 19 of 20 sampled papers relevant. The year 2026 is partial, so recent-year shares are not directly comparable with full years. Some handheld devices for dexterous hands are labelled other_teleop (e.g. DexPort, DEX-PHD), so the handheld-gripper count is a lower bound.
+  </div>
+
+  <section>
+    <h2>1. Collection methods</h2>
+    <div id="method-chart"></div>
+  </section>
+
+  <section>
+    <h2>2. Growth by year and method</h2>
+    <div id="growth-chart"></div>
+  </section>
+
+  <section>
+    <h2>3. Robot-free collection, dataset release, cross-embodiment</h2>
+    <div id="share-charts"></div>
+  </section>
+
+  <section>
+    <h2>4. Handheld-gripper systems</h2>
+    <p id="handheld-text"></p>
+  </section>
+
+  <section>
+    <h2>5. Targeted end-effectors</h2>
+    <div id="endeff-chart"></div>
+  </section>
+
+  <section>
+    <h2>6. Dataset sizes that are stated</h2>
+    <div id="size-stats"></div>
+    <div id="size-chart"></div>
+    <h3>Largest stated datasets</h3>
+    <ul class="toplist" id="toplist"></ul>
+  </section>
+
+  <section>
+    <h2>All papers</h2>
+    <div class="filters">
+      <input type="search" id="f-title" placeholder="Search title…" aria-label="Search title">
+      <select id="f-method"><option value="">All methods</option></select>
+      <select id="f-year"><option value="">All years</option></select>
+      <select id="f-endeff"><option value="">All end-effectors</option></select>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="papers-table">
+        <thead><tr>
+          <th>Title</th><th>Year</th><th>Method</th><th>End-effector</th>
+          <th>Robot-free</th><th>Releases data</th><th>Demos</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="muted" id="table-count"></p>
+  </section>
+
+  <section>
+    <h2>How these numbers are calculated</h2>
+    <ul class="calc">
+      <li><strong>Total papers:</strong> the number of rows in the dataset.</li>
+      <li><strong>From 2025 or later:</strong> rows whose publication year is 2025 or greater, divided by total rows, shown as a percentage rounded to one decimal place.</li>
+      <li><strong>Robot-free collection:</strong> rows where <code>robot_free_collection</code> is <code>yes</code>, divided by total rows, as a percentage rounded to one decimal place.</li>
+      <li><strong>Releases a dataset:</strong> rows where <code>releases_dataset</code> is <code>yes</code>, divided by total rows, as a percentage rounded to one decimal place.</li>
+      <li><strong>Cross-embodiment:</strong> rows where <code>cross_embodiment</code> is <code>yes</code>, divided by total rows, as a percentage rounded to one decimal place.</li>
+      <li><strong>Handheld-gripper papers:</strong> rows where <code>collection_method</code> is <code>handheld_gripper</code>. The sub-number is how many of those rows have <code>robot_free_collection</code> equal to <code>yes</code>. The percentage of handheld-gripper papers that are robot-free uses the handheld-gripper count as the denominator.</li>
+      <li><strong>Median stated demos:</strong> the median of <code>num_demonstrations</code> across rows where that field is non-empty; if there is an even number of values, the median is the average of the two middle values. The sub-number is how many rows state a value.</li>
+      <li><strong>Method counts and shares:</strong> rows grouped by <code>collection_method</code>; share is the group count divided by total rows, as a percentage rounded to one decimal place.</li>
+      <li><strong>Growth chart:</strong> rows grouped by publication year, then stacked by <code>collection_method</code>; each segment height is the number of papers that year using that method. The y-axis uses round ticks in steps of 20.</li>
+      <li><strong>End-effector counts:</strong> rows grouped by <code>end_effector</code>.</li>
+      <li><strong>Largest stated datasets:</strong> rows with a non-empty <code>num_demonstrations</code>, sorted from largest to smallest; the ten largest are listed.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const ROWS = /*__DATA__*/[];
+
+const $ = id => document.getElementById(id);
+const total = ROWS.length;
+const fmtPct = (n, denom=total) => (100*n/denom).toFixed(1) + '%';
+const years = ROWS.map(r => parseInt(r.year,10)).filter(y => !isNaN(y));
+const minYear = Math.min(...years), maxYear = Math.max(...years);
+const yearList = [];
+for(let y=minYear;y<=maxYear;y++) yearList.push(y);
+
+const countWhere = fn => ROWS.filter(fn).length;
+const shareYes = field => countWhere(r => r[field]==='yes')/total;
+const methodCounts = {};
+for(const r of ROWS) methodCounts[r.collection_method] = (methodCounts[r.collection_method]||0)+1;
+const methodOrder = Object.entries(methodCounts).sort((a,b)=>b[1]-a[1]);
+const endEffCounts = {};
+for(const r of ROWS) endEffCounts[r.end_effector] = (endEffCounts[r.end_effector]||0)+1;
+const endEffOrder = Object.entries(endEffCounts).sort((a,b)=>b[1]-a[1]);
+const handheldTotal = countWhere(r => r.collection_method==='handheld_gripper');
+const handheldRobotFree = countWhere(r => r.collection_method==='handheld_gripper' && r.robot_free_collection==='yes');
+const demoVals = ROWS.map(r => r.num_demonstrations.trim()===''?null:parseInt(r.num_demonstrations,10)).filter(v=>v!==null && !isNaN(v)).sort((a,b)=>a-b);
+const demoMedian = demoVals.length ? (demoVals.length%2 ? demoVals[(demoVals.length-1)/2] : (demoVals[demoVals.length/2-1]+demoVals[demoVals.length/2])/2) : null;
+const fmtNum = n => Number.isInteger(n) ? n.toLocaleString('en-US') : n.toLocaleString('en-US',{maximumFractionDigits:1});
+
+const methodColors = ['#1f6feb','#2e8b57','#b8860b','#7b3fb3','#c2185b','#455a64','#00838f','#8d6e63'];
+
+$('subtitle').textContent = `${total} arXiv papers from ${minYear} to ${maxYear} that present or depend on a system for collecting human demonstrations for robot manipulation.`;
+$('kpi-total').textContent = total.toLocaleString('en-US');
+$('kpi-recent').textContent = fmtPct(countWhere(r=>parseInt(r.year,10)>=2025));
+$('kpi-recent-sub').textContent = `${countWhere(r=>parseInt(r.year,10)>=2025).toLocaleString('en-US')} papers`;
+$('kpi-robotfree').textContent = fmtPct(countWhere(r=>r.robot_free_collection==='yes'));
+$('kpi-robotfree-sub').textContent = `${countWhere(r=>r.robot_free_collection==='yes').toLocaleString('en-US')} papers`;
+$('kpi-releases').textContent = fmtPct(countWhere(r=>r.releases_dataset==='yes'));
+$('kpi-releases-sub').textContent = `${countWhere(r=>r.releases_dataset==='yes').toLocaleString('en-US')} papers`;
+$('kpi-xemb').textContent = fmtPct(countWhere(r=>r.cross_embodiment==='yes'));
+$('kpi-xemb-sub').textContent = `${countWhere(r=>r.cross_embodiment==='yes').toLocaleString('en-US')} papers`;
+$('kpi-handheld').textContent = handheldTotal.toLocaleString('en-US');
+$('kpi-handheld-sub').textContent = `${handheldRobotFree.toLocaleString('en-US')} robot-free`;
+$('kpi-median').textContent = demoMedian===null ? '—' : fmtNum(demoMedian);
+$('kpi-median-sub').textContent = demoMedian===null ? 'no stated sizes' : `${demoVals.length.toLocaleString('en-US')} papers state a size`;
+
+// 1. Method horizontal bars
+{
+  const h = Math.max(300, methodOrder.length*34+70);
+  const w = 720;
+  const rowH = 30, labelW = 190, valW = 90;
+  const plotW = w-labelW-valW-30;
+  const maxC = methodOrder[0][1];
+  let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Bar chart of collection method counts">`;
+  methodOrder.forEach(([m,c],i)=>{
+    const y = 30+i*(rowH+6);
+    const bw = maxC? (c/maxC)*plotW : 0;
+    svg += `<text x="0" y="${y+16}" font-size="13">${m}</text>`;
+    svg += `<rect x="${labelW}" y="${y}" width="${bw}" height="16" rx="3" fill="${methodColors[i%methodColors.length]}"></rect>`;
+    svg += `<text x="${labelW+bw+8}" y="${y+16}" font-size="13" fill="#1a202c">${c} (${fmtPct(c)})</text>`;
+  });
+  svg += '</svg>';
+  $('method-chart').innerHTML = svg;
+}
+
+// 2. Stacked bars by year
+{
+  const methods = methodOrder.map(([m])=>m);
+  const yearCounts = {};
+  for(const y of yearList) yearCounts[y] = {};
+  for(const r of ROWS){
+    const y = parseInt(r.year,10);
+    yearCounts[y][r.collection_method] = (yearCounts[y][r.collection_method]||0)+1;
+  }
+  const maxStack = Math.max(...yearList.map(y=>Object.values(yearCounts[y]).reduce((a,b)=>a+b,0)));
+  const w = 760, h = 340, padL=46, padB=40, padT=16;
+  const plotW = w-padL-20, plotH = h-padT-padB;
+  const slot = plotW/yearList.length;
+  // round y-axis ticks in steps of 20
+  const step = 20;
+  const tickMax = Math.max(step, Math.ceil(maxStack/step)*step);
+  const yFor = val => padT + plotH - (val/tickMax)*plotH;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Stacked bar chart of papers per year by collection method">`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="#d7dee6"/>`;
+  svg += `<line x1="${padL}" y1="${h-padB}" x2="${w-20}" y2="${h-padB}" stroke="#d7dee6"/>`;
+  for(let val=0; val<=tickMax; val+=step){
+    const y = yFor(val);
+    svg += `<text x="${padL-8}" y="${y+4}" font-size="11" text-anchor="end" fill="#5a6472">${val}</text>`;
+    svg += `<line x1="${padL}" y1="${y}" x2="${w-20}" y2="${y}" stroke="#e3e8ee"/>`;
+  }
+  yearList.forEach((y,yi)=>{
+    const x = padL + yi*slot + slot*0.12;
+    const bw = slot*0.76;
+    let yy = padT + plotH;
+    for(let mi=0;mi<methods.length;mi++){
+      const m = methods[mi];
+      const c = yearCounts[y][m]||0;
+      if(!c) continue;
+      const bh = (c/tickMax)*plotH;
+      yy -= bh;
+      svg += `<rect x="${x}" y="${yy}" width="${bw}" height="${bh}" fill="${methodColors[mi%methodColors.length]}" opacity="0.92"><title>${y}: ${m} = ${c}</title></rect>`;
+    }
+    svg += `<text x="${x+bw/2}" y="${padT+plotH+16}" font-size="11" text-anchor="middle">${y}</text>`;
+  });
+  svg += '</svg>';
+  $('growth-chart').innerHTML = svg;
+  let legend = '<div class="legend">';
+  methods.forEach((m,mi)=> legend += `<span><i style="background:${methodColors[mi%methodColors.length]}"></i>${m}</span>`);
+  legend += '</div>';
+  $('growth-chart').insertAdjacentHTML('beforeend', legend);
+}
+
+// 3. Share bars for yes fields
+{
+  const items = [
+    ['robot_free_collection','Robot-free collection'],
+    ['releases_dataset','Releases a dataset'],
+    ['cross_embodiment','Cross-embodiment transfer']
+  ];
+  let html = '';
+  for(const [field,label] of items){
+    const yes = countWhere(r=>r[field]==='yes');
+    const no = countWhere(r=>r[field]==='no');
+    const unc = countWhere(r=>r[field]==='unclear');
+    const yesP = fmtPct(yes), noP = fmtPct(no), uncP = fmtPct(unc);
+    html += `<div><div class="bar-label"><span>${label}</span><span>${yesP} yes</span></div>`;
+    html += `<div class="bar-track"><div class="bar-fill" style="width:${100*yes/total}%;background:#2e8b57"></div></div>`;
+    html += `<div style="font-size:.8rem;color:var(--muted)">yes ${yes} (${yesP}) · no ${no} (${noP}) · unclear ${unc} (${uncP})</div></div>`;
+  }
+  $('share-charts').innerHTML = html;
+}
+
+// 4. Handheld text
+{
+  const fieldRobotFreePct = fmtPct(countWhere(r=>r.robot_free_collection==='yes'));
+  const handheldRobotFreePct = handheldTotal ? fmtPct(handheldRobotFree, handheldTotal) : '0.0%';
+  $('handheld-text').textContent = `There are ${handheldTotal.toLocaleString('en-US')} handheld-gripper collection papers (${fmtPct(handheldTotal)} of the field). Of these, ${handheldRobotFree.toLocaleString('en-US')} (${handheldRobotFreePct} of handheld-gripper papers) can collect demonstrations without a robot present — versus ${fieldRobotFreePct} robot-free across the whole field.`;
+}
+
+// 5. End effector bars
+{
+  const h = Math.max(220, endEffOrder.length*34+60);
+  const w = 720;
+  const rowH = 30, labelW = 170, valW = 80;
+  const plotW = w-labelW-valW-30;
+  const maxC = endEffOrder[0][1];
+  const neutral = '#64748b';
+  let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Bar chart of targeted end-effectors">`;
+  endEffOrder.forEach(([m,c],i)=>{
+    const y = 24+i*(rowH+6);
+    const bw = maxC? (c/maxC)*plotW : 0;
+    svg += `<text x="0" y="${y+16}" font-size="13">${m}</text>`;
+    svg += `<rect x="${labelW}" y="${y}" width="${bw}" height="16" rx="3" fill="${neutral}"></rect>`;
+    svg += `<text x="${labelW+bw+8}" y="${y+16}" font-size="13" fill="#1a202c">${c} (${fmtPct(c)})</text>`;
+  });
+  svg += '</svg>';
+  $('endeff-chart').innerHTML = svg;
+}
+
+// 6. Dataset sizes
+{
+  const stated = ROWS.filter(r=>r.num_demonstrations.trim()!=='' && !isNaN(parseInt(r.num_demonstrations,10)));
+  $('size-stats').innerHTML = `<p>${stated.length.toLocaleString('en-US')} of ${total.toLocaleString('en-US')} papers state a dataset size. Median stated size: <strong>${demoMedian===null?'—':fmtNum(demoMedian)}</strong> demonstrations. Range: ${stated.length?fmtNum(Math.min(...stated.map(r=>parseInt(r.num_demonstrations,10))))+' to '+fmtNum(Math.max(...stated.map(r=>parseInt(r.num_demonstrations,10)))):'—'}.</p>`;
+  const sorted = [...stated].sort((a,b)=>parseInt(b.num_demonstrations,10)-parseInt(a.num_demonstrations,10));
+  const show = sorted.slice(0,10);
+  $('toplist').innerHTML = show.map(r=>`<li><a href="https://arxiv.org/abs/${r.arxiv_id}" target="_blank" rel="noopener">${r.title}</a> — ${fmtNum(parseInt(r.num_demonstrations,10))} demos (${r.year})</li>`).join('');
+  if(sorted.length>10) $('toplist').insertAdjacentHTML('beforeend',`<li class="muted">… and ${sorted.length-10} more</li>`);
+  // strip plot with log10 scale
+  const vals = sorted.map(r=>parseInt(r.num_demonstrations,10)).sort((a,b)=>a-b);
+  const vmin = Math.min(...vals), vmax = Math.max(...vals);
+  const dMin = Math.floor(Math.log10(vmin));
+  const dMax = Math.ceil(Math.log10(vmax));
+  const w = 760, h = Math.max(240, vals.length*16+60);
+  const padL=150, padB=40, padT=20;
+  const plotW = w-padL-30, plotH = h-padT-padB;
+  const xFor = v => {
+    if(dMax===dMin) return padL + plotW/2;
+    return padL + ((Math.log10(v)-dMin)/(dMax-dMin))*plotW;
+  };
+  let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Strip plot of stated demonstration counts on a log scale">`;
+  svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="#d7dee6"/>`;
+  svg += `<line x1="${padL}" y1="${h-padB}" x2="${w-20}" y2="${h-padB}" stroke="#d7dee6"/>`;
+  // decade ticks
+  for(let d=dMin; d<=dMax; d++){
+    const x = xFor(Math.pow(10,d));
+    const label = d>=6?'1M':d===5?'100k':d===4?'10k':d===3?'1k':d===2?'100':d===1?'10':d===0?'1':'10^'+d;
+    svg += `<text x="${x}" y="${h-padB+16}" font-size="11" text-anchor="middle" fill="#5a6472">${label}</text>`;
+    svg += `<line x1="${x}" y1="${h-padB}" x2="${x}" y2="${h-padB+4}" stroke="#d7dee6"/>`;
+  }
+  vals.forEach((v,i)=>{
+    const x = xFor(v);
+    const y = padT + i*16;
+    svg += `<circle cx="${x}" cy="${y+5}" r="3.5" fill="#1f6feb"><title>${v}</title></circle>`;
+    const text = fmtNum(v);
+    const textW = 7*text.length;
+    if(x + 8 + textW <= padL+plotW){
+      svg += `<text x="${x+8}" y="${y+9}" font-size="10" fill="#1a202c">${text}</text>`;
+    } else {
+      svg += `<text x="${x-6}" y="${y+9}" font-size="10" fill="#1a202c" text-anchor="end">${text}</text>`;
+    }
+  });
+  svg += '</svg>';
+  $('size-chart').innerHTML = svg;
+}
+
+// Table
+{
+  const tbody = $('papers-table').querySelector('tbody');
+  const render = rows => {
+    tbody.innerHTML = rows.map(r=>`
+      <tr>
+        <td><a href="https://arxiv.org/abs/${r.arxiv_id}" target="_blank" rel="noopener">${r.title}</a></td>
+        <td>${r.year}</td>
+        <td>${r.collection_method}</td>
+        <td>${r.end_effector}</td>
+        <td>${r.robot_free_collection}</td>
+        <td>${r.releases_dataset}</td>
+        <td>${r.num_demonstrations.trim()===''? '—' : fmtNum(parseInt(r.num_demonstrations,10))}</td>
+      </tr>`).join('');
+    $('table-count').textContent = `${rows.length} of ${total} papers shown`;
+  };
+  const methodSel = $('f-method'), yearSel = $('f-year'), endSel = $('f-endeff');
+  methodOrder.forEach(([m])=>methodSel.insertAdjacentHTML('beforeend',`<option value="${m}">${m}</option>`));
+  yearList.forEach(y=>yearSel.insertAdjacentHTML('beforeend',`<option value="${y}">${y}</option>`));
+  endEffOrder.forEach(([e])=>endSel.insertAdjacentHTML('beforeend',`<option value="${e}">${e}</option>`));
+  const applyFilter = () => {
+    const q = $('f-title').value.trim().toLowerCase();
+    const m = methodSel.value, y = yearSel.value, e = endSel.value;
+    const rows = ROWS.filter(r=>
+      (!q || r.title.toLowerCase().includes(q)) &&
+      (!m || r.collection_method===m) &&
+      (!y || r.year===String(y)) &&
+      (!e || r.end_effector===e)
+    );
+    render(rows);
+  };
+  $('f-title').addEventListener('input', applyFilter);
+  methodSel.addEventListener('change', applyFilter);
+  yearSel.addEventListener('change', applyFilter);
+  endSel.addEventListener('change', applyFilter);
+  render(ROWS);
+}
+</script>
+</body>
+</html>

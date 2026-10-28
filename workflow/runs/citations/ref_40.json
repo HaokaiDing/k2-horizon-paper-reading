@@ -1,0 +1,34 @@
+{
+  "ref": 40,
+  "arxiv_id": "2302.12422",
+  "entry": "Chen Wang, Linxi Fan, Jiankai Sun, Ruohan Zhang, Li Fei-Fei, Danfei Xu, Yuke Zhu, and Anima Anandkumar. Mimicplay: Long-horizon imitation learning by watching human play, 2023. URL https://arxiv.org/abs/2302.12422.",
+  "contexts": [
+    "Current methods can be broadly categorized into teleoperation-based techniques [51, 16, 47, 42], vision-driven demonstrations [3, 26], and sensor-enhanced interfaces [6, 40, 48].",
+    "Existing solutions incorporate SLAM-based estimation from video streams [10], motion capture systems [40], and vision-based tracking algorithms [36].",
+    "Depending on the nature of the collected data, IL algorithms can leverage real-robot demonstrations [49, 19, 35], video-based observations without explicit action labels [40, 3], or data obtained from decoupled handheld tracking devices [10, 14, 33]."
+  ],
+  "model": "IFM/K2-Horizon-375B-A23B",
+  "latency_s": 2.64,
+  "usage": {
+    "total_tokens": 20160,
+    "completion_tokens": 797,
+    "completion_tokens_details": {
+      "reasoning_tokens": 697
+    },
+    "prompt_tokens": 19363,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "source_chars": 70515,
+  "source_truncated": false,
+  "reasoning": "We need answer JSON only. Need audit citation. Need determine claim FastUMI relies on [40] for. Sentences:\n1 \"Current methods can be broadly categorized into teleoperation-based techniques [51, 16, 47, 42], vision-driven demonstrations [3, 26], and sensor-enhanced interfaces [6, 40, 48].\"\n2 \"Existing solutions incorporate SLAM-based estimation from video streams [10], motion capture systems [40], and vision-based tracking algorithms [36].\"\n3 \"Depending on the nature of the collected data, IL algorithms can leverage real-robot demonstrations [49, 19, 35], video-based observations without explicit action labels [40, 3], or data obtained from decoupled handheld tracking devices [10, 14, 33].\"\n\nReference [40] is MimicPlay. Need decide whether cited paper supports what FastUMI uses it for. The claim likely: [40] is an example of sensor-enhanced interfaces / motion capture systems / video-based observations without explicit action labels. Need assess.\n\nMimicPlay uses human play data: video sequences of people interacting with environment using hands, tracked 3D hand trajectories via two calibrated cameras and off-the-shelf hand detector. It is not motion capture system? It uses multi-view cameras to track 3D hand trajectories, not mocap suits. It is video-based observations without explicit action labels? Human play data is unlabelled in-domain videos, no action labels. It uses human play data (video) to learn latent plans, plus small teleoperated robot demos. So for third sentence, [40] supports video-based observations without explicit action labels. For second sentence, \"motion capture systems [40]\" maybe MimicPlay uses 3D hand tracking from calibrated cameras, not motion capture system per se. But could be considered motion capture? Need decide status. The question: \"Decide whether the cited paper supports what FastUMI uses it for.\" We need one claim. Probably the claim is that [40] is an example of video-based observations without explicit action labels. The cited paper clearly uses unlabelled human play videos. So supported. Need quote verbatim from cited paper max 60 words. Need exact passage. Could quote: \"we resort to human play data—video sequences of people freely interacting with the environment using their hands.\" That's from abstract. Or \"Human play data is much faster and easier to collect than robot teleoperation data\" etc. Need support video-based observations without explicit action labels. Quote: \"we resort to human play data—video sequences of people freely interacting with the environment using their hands.\" This is verbatim? In abstract: \"we resort to human play data—video sequences of people freely interacting with the environment using their hands.\" Yes. Also \"unlabelled in-domain videos\" in Fig 1. But quote max 60 words. Use abstract sentence.\n\nNeed status supported. Reason: MimicPlay learns from unlabelled human play videos (video observations without action labels), so it backs the claim. Need ensure quote exact. Let's copy exactly: \"we resort to human play data—video sequences of people freely interacting with the environment using their hands.\" Check em dash? In text: \"we resort to human play data—video sequences of people freely interacting with the environment using their hands.\" Yes.\n\nNeed JSON object with claim, status, quote, reason. No extra text. Ensure valid JSON.\n",
+  "content": "\n{\"claim\": \"Reference [40] is cited as an example of video-based observations without explicit action labels for imitation learning.\", \"status\": \"supported\", \"quote\": \"we resort to human play data—video sequences of people freely interacting with the environment using their hands.\", \"reason\": \"MimicPlay explicitly uses unlabelled human play videos as a data source for learning latent plans, which matches FastUMI's use of [40] as video-based observations without explicit action labels.\"}",
+  "parsed": {
+    "claim": "Reference [40] is cited as an example of video-based observations without explicit action labels for imitation learning.",
+    "status": "supported",
+    "quote": "we resort to human play data—video sequences of people freely interacting with the environment using their hands.",
+    "reason": "MimicPlay explicitly uses unlabelled human play videos as a data source for learning latent plans, which matches FastUMI's use of [40] as video-based observations without explicit action labels."
+  },
+  "quote_found_in_source": true
+}

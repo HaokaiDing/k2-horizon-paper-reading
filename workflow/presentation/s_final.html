@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Handheld-gripper data on other robot hands</title>
+<style>
+@page { size: 1280px 720px; margin: 0; }
+html, body { margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; color: #111; background: #fff; }
+.slide { position: relative; width: 1280px; height: 720px; overflow: hidden; page-break-after: always; background: #fff; padding: 40px 64px; box-sizing: border-box; display: flex; flex-direction: column; }
+h2.slide-title { font-size: 34px; line-height: 1.15; margin: 0 0 10px; max-width: 1152px; }
+.accent-bar { height: 4px; width: 120px; background: #4a90e2; margin: 0 0 22px; }
+.slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+p, li { font-size: 30px; line-height: 1.4; }
+ul { margin: 0; padding-left: 26px; }
+.footnote { font-size: 14px; color: #444; margin-top: 12px; line-height: 1.3; }
+.footer { position: absolute; left: 64px; right: 24px; bottom: 16px; display: flex; justify-content: space-between; font-size: 14px; color: #666; }
+.title-slide { justify-content: center; text-align: center; }
+.title-slide h1 { font-size: 48px; line-height: 1.15; margin: 0 0 28px; }
+.title-slide .subtitle { font-size: 28px; margin: 0; }
+.title-slide .presenter { font-size: 24px; margin-top: 16px; }
+.refs { font-size: 15px; line-height: 1.3; columns: 2; column-gap: 40px; margin-top: 6px; padding-left: 20px; }
+.refs li { margin-bottom: 6px; font-size: 18px; line-height: 1.35; }
+.two-col { display: flex; gap: 48px; }
+.col { flex: 1; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+.card { border: 1px solid #ccc; border-radius: 8px; padding: 16px 18px; background: #fafafa; display: flex; flex-direction: column; }
+.card h3 { font-size: 26px; margin: 0 0 8px; }
+.card ul { margin: 0; padding-left: 20px; }
+.card li { font-size: 20px; line-height: 1.3; margin-bottom: 4px; }
+.chart-wrap { display: flex; gap: 40px; align-items: center; justify-content: center; }
+.chart-wrap svg { flex: 0 0 auto; }
+.chart-wrap ul { flex: 1; max-width: 560px; }
+.plan { display: flex; flex-direction: column; gap: 18px; }
+.plan-row { display: flex; gap: 20px; align-items: flex-start; }
+.plan-label { flex: 0 0 170px; font-weight: bold; font-size: 30px; }
+.plan-body { flex: 1; font-size: 30px; }
+.need { font-size: 30px; margin: 6px 0 0; }
+.ask { font-size: 30px; font-weight: bold; margin: 10px 0 0; }
+</style>
+</head>
+<body>
+
+<section class="slide title-slide">
+  <h1>Handheld-gripper data on other robot hands: where we stand, and what our lab should try first</h1>
+  <p class="subtitle">Lab meeting, October 2026</p>
+  <p class="presenter">Haokai Ding</p>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">Handheld-gripper data is scalable, but the embodiment gap blocks direct reuse.</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <ul>
+      <li>UMI-style interfaces separate teacher from robot and replay demos directly<sup>[2]</sup>.</li>
+      <li>FastUMI scales this with hardware-independent collection<sup>[1]</sup>.</li>
+      <li>Transfer fails when the executing end-effector differs from the handheld gripper<sup>[2][5]</sup>.</li>
+    </ul>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>2</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">FastUMI standardizes the interface and replaces GoPro VIO with a RealSense T265.</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <div class="two-col">
+      <div class="col">
+        <p style="font-weight:bold; margin-bottom:8px;">Hardware</p>
+        <ul>
+          <li>ISO-standard flange plates and adjustable camera mounts<sup>[1]</sup>.</li>
+          <li>Plug-in fingertips for five common grippers<sup>[1]</sup>.</li>
+          <li>Cover &gt;90% of Open X-Embodiment grippers<sup>[1][3]</sup>.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <p style="font-weight:bold; margin-bottom:8px;">Tracking</p>
+        <ul>
+          <li>RealSense T265 replaces GoPro VIO<sup>[1]</sup>.</li>
+          <li>Eliminates complex calibration and transforms<sup>[1]</sup>.</li>
+          <li>Caveat: T265 degrades under occlusion<sup>[1]</sup>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>3</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">FastUMI's 10k+ trajectories show depth and data scale improve transfer-relevant policies.</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <div class="chart-wrap">
+      <svg id="chart-pickcup" width="620" height="400" viewBox="0 0 620 400" aria-label="Pick Cup success vs demos"></svg>
+      <ul>
+        <li>&gt;10,000 demos, 22 tasks, 19 objects, 12 skills, ~6–12 s<sup>[1]</sup>.</li>
+        <li>Depth raises success: Pick Lid 53.33&rarr;80.00%, Open Ricecooker 20.00&rarr;93.33%<sup>[1]</sup>.</li>
+        <li>Single fisheye GoPro matches multi-view on Open Container<sup>[1]</sup>.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>4</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">A different end-effector breaks geometry, actions, tracking, and mechanics.</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <div class="two-col">
+      <div class="col">
+        <p style="font-weight:bold; margin-bottom:8px;">Geometry &amp; actions</p>
+        <ul>
+          <li>Grasp geometry and contact points shift<sup>[5]</sup>.</li>
+          <li>Diffusion Policy relative TCP poses do not handle embodiment<sup>[11]</sup>.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <p style="font-weight:bold; margin-bottom:8px;">Tracking &amp; mechanics</p>
+        <ul>
+          <li>T265 degrades under occlusion and low light<sup>[1]</sup>.</li>
+          <li>Non-parallel jaws displace TCP; local-Z compensation<sup>[1]</sup>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>5</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">Four ways the literature approaches the gap</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <div class="cards">
+      <div class="card">
+        <h3>Pool across embodiments</h3>
+        <ul>
+          <li>Open X-Embodiment: RT-X on mixed robots beats single-robot models<sup>[3]</sup>.</li>
+          <li>RT-1: adding Kuka data can help<sup>[8]</sup>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Retarget mismatched hands</h3>
+        <ul>
+          <li>Doshi et al.: compensate shape and kinematic differences<sup>[5]</sup>.</li>
+          <li>Sanches et al.: wearable interfaces map human hand motion to robot hands<sup>[6]</sup>.</li>
+          <li>Dexcap: mocap gloves retargeted to a dexterous hand via IK<sup>[7]</sup>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Fix policy and data</h3>
+        <ul>
+          <li>Diffusion Policy: relative TCP poses decide how much mismatch the policy sees<sup>[11]</sup>.</li>
+          <li>Data Quality in Imitation Learning: noise and bias affect downstream policies<sup>[12]</sup>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Useful contrasts</h3>
+        <ul>
+          <li>UMI: assumes the robot wears the same fingers<sup>[2]</sup>.</li>
+          <li>Human video: third-person demos, the far end of the gap<sup>[4]</sup>.</li>
+          <li>VR teleoperation: collects on the target robot, no gap<sup>[9]</sup>.</li>
+          <li>Grasping in the Wild: early handheld grabber, transfer not its focus<sup>[10]</sup>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>6</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">The field is very recent: 80.8% of 203 papers appeared in 2025 or later.</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <svg id="chart-years" width="760" height="420" viewBox="0 0 760 420" aria-label="Papers per year"></svg>
+    <p class="footnote">2026 is partial through October; labels by a language model from abstracts, relevance spot check 19/20<sup>[14]</sup>.</p>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>7</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">Handheld grippers are robot-free twice as often as the field (83.9% vs 41.4%).</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <svg id="chart-robotfree" width="720" height="380" viewBox="0 0 720 380" aria-label="Robot-free share"></svg>
+    <p class="footnote">Only 27 papers state dataset size (median 2,100 demos, range 3–1,200,000); 108 abstracts do not specify an end-effector. Labels were produced by a language model from abstracts (relevance spot check 19/20); some dexterous-hand devices are labelled other_teleop, so the handheld count of 31 is a lower bound<sup>[14]</sup>.</p>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>8</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">Open problems: data quality, unsupported grippers, mismatched evaluation, sensing, and policy-first fixes.</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <ul>
+      <li>Clean and re-annotate occluded or close-range handheld recordings<sup>[1][12]</sup>.</li>
+      <li>Build a retargeting baseline for one gripper outside FastUMI's five attachments<sup>[1][5][6][7]</sup>.</li>
+      <li>Evaluate transfer on mismatched end-effectors with per-task success rates<sup>[3][8][14]</sup>.</li>
+      <li>Test tactile/force sensing, wireless transfer, and mobile-manipulator morphologies<sup>[1]</sup>.</li>
+      <li>Try policy-level fixes first: depth-enhanced Diffusion Policy and more data<sup>[1][11]</sup>.</li>
+    </ul>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>9</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">Approve a 4-week pilot: clean data, build one retargeting baseline, evaluate mismatched transfer.</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <div class="plan">
+      <div class="plan-row">
+        <div class="plan-label">Week 1</div>
+        <div class="plan-body">Clean and re-annotate occluded handheld recordings<sup>[1][12]</sup>. Measure: annotation quality and occlusion coverage.</div>
+      </div>
+      <div class="plan-row">
+        <div class="plan-label">Weeks 2–3</div>
+        <div class="plan-body">Retarget one gripper outside FastUMI's five attachments<sup>[1][5][6][7]</sup>. Measure: success drop vs matched gripper.</div>
+      </div>
+      <div class="plan-row">
+        <div class="plan-label">Week 4</div>
+        <div class="plan-body">Diffusion Policy on mismatched gripper<sup>[3][11][14]</sup>. Measure: per-task success rates.</div>
+      </div>
+      <p class="need">What we need: one unsupported gripper, compute, existing handheld data.</p>
+      <p class="ask">Please approve this 4-week pilot.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>10</span></div>
+</section>
+
+<section class="slide">
+  <h2 class="slide-title">References</h2>
+  <div class="accent-bar"></div>
+  <div class="slide-content">
+    <ol class="refs">
+      <li>Zhaxizhuoma et al., FastUMI, 2025, arXiv:2409.19499.</li>
+      <li>Cheng Chi et al., Universal Manipulation Interface, 2024, arXiv:2402.10329.</li>
+      <li>Open X-Embodiment Collaboration, Open X-Embodiment, 2024, arXiv:2310.08864.</li>
+      <li>Bahl, Gupta &amp; Pathak, Human-to-robot imitation in the wild, 2022, arXiv:2207.09450.</li>
+      <li>Doshi, Huang &amp; Coros, On hand-held grippers and the morphological gap, 2023, arXiv:2311.01832.</li>
+      <li>Sanches et al., Scalable intuitive human-to-robot skill transfer with wearable HMIs, 2023, DOI:10.1109/iros55552.2023.10341661.</li>
+      <li>Wang et al., Dexcap, 2024, arXiv:2403.07788.</li>
+      <li>Brohan et al., RT-1, 2022, arXiv:2212.06817.</li>
+      <li>Zhang et al., Deep imitation learning from VR teleoperation, 2018, arXiv:1710.04615.</li>
+      <li>Song et al., Grasping in the Wild, 2020, DOI:10.1109/lra.2020.3004787.</li>
+      <li>Cheng Chi et al., Diffusion Policy, 2023, arXiv:2303.04137.</li>
+      <li>Belkhale, Cui &amp; Sadigh, Data Quality in Imitation Learning, 2023, arXiv:2306.02437.</li>
+      <li>Hussein et al., Imitation learning: A survey of learning methods, 2017, DOI:10.1145/3054912.</li>
+      <li>Survey dataset of 203 arXiv papers on demonstration-collection systems, 2019–Oct 2026, compiled for this review.</li>
+    </ol>
+  </div>
+  <div class="footer"><span>Handheld-gripper data on other robot hands</span><span>11</span></div>
+</section>
+
+<script>
+function drawChart(svg, data, axisMax, opts) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const plot = opts.plot;
+  const ticks = opts.ticks;
+  const orientation = opts.orientation || 'vertical';
+  const barWidth = opts.barWidth || 60;
+  const barGap = opts.barGap || 20;
+  const xLabels = opts.xLabels || [];
+  const yTitle = opts.yTitle || '';
+  const xTitle = opts.xTitle || '';
+  const valueLabels = opts.valueLabels !== false;
+  const labelColor = opts.labelColor || '#111';
+  const barColor = opts.barColor || '#4a90e2';
+  const gridColor = opts.gridColor || '#ccc';
+  const axisColor = opts.axisColor || '#999';
+
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  function el(tag, attrs, text) {
+    const e = document.createElementNS(ns, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    svg.appendChild(e);
+    return e;
+  }
+
+  if (orientation === 'vertical') {
+    el('line', {x1: plot.left, y1: plot.top, x2: plot.left, y2: plot.top + plot.height, stroke: axisColor, 'stroke-width': 1});
+    el('line', {x1: plot.left, y1: plot.top + plot.height, x2: plot.left + plot.width, y2: plot.top + plot.height, stroke: axisColor, 'stroke-width': 1});
+
+    ticks.forEach(v => {
+      const y = plot.top + plot.height - (v / axisMax) * plot.height;
+      el('line', {x1: plot.left, y1: y, x2: plot.left + plot.width, y2: y, stroke: gridColor, 'stroke-width': 1});
+      el('text', {x: plot.left - 6, y: y + 4, 'font-size': 18, fill: '#333', 'text-anchor': 'end'}, String(v));
+    });
+
+    xLabels.forEach((label, i) => {
+      const cx = plot.left + plot.width * (i + 0.5) / xLabels.length;
+      el('text', {x: cx, y: plot.top + plot.height + 30, 'font-size': 18, fill: '#333', 'text-anchor': 'middle'}, label);
+    });
+
+    const n = data.length;
+    const slot = plot.width / n;
+    const bw = Math.min(barWidth, slot - barGap);
+    data.forEach((d, i) => {
+      const cx = plot.left + slot * (i + 0.5);
+      const x = cx - bw / 2;
+      const h = (d.value / axisMax) * plot.height;
+      const y = plot.top + plot.height - h;
+      el('rect', {x: x, y: y, width: bw, height: h, fill: d.color || barColor});
+      if (valueLabels) {
+        el('text', {x: cx, y: y - 6, 'font-size': 18, fill: labelColor, 'text-anchor': 'middle'}, d.label || String(d.value));
+      }
+    });
+
+    if (yTitle) {
+      const ty = plot.top + plot.height / 2;
+      el('text', {x: 20, y: ty, 'font-size': 18, fill: '#333', transform: 'rotate(-90 20 ' + ty + ')', 'text-anchor': 'middle'}, yTitle);
+    }
+    if (xTitle) {
+      el('text', {x: plot.left + plot.width / 2, y: plot.top + plot.height + 60, 'font-size': 18, fill: '#333', 'text-anchor': 'middle'}, xTitle);
+    }
+  } else {
+    el('line', {x1: plot.left, y1: plot.top, x2: plot.left + plot.width, y2: plot.top, stroke: axisColor, 'stroke-width': 1});
+    el('line', {x1: plot.left, y1: plot.top, x2: plot.left, y2: plot.top + plot.height, stroke: axisColor, 'stroke-width': 1});
+
+    ticks.forEach(v => {
+      const x = plot.left + (v / axisMax) * plot.width;
+      el('line', {x1: x, y1: plot.top, x2: x, y2: plot.top + plot.height, stroke: gridColor, 'stroke-width': 1});
+      el('text', {x: x, y: plot.top + plot.height + 20, 'font-size': 18, fill: '#333', 'text-anchor': 'middle'}, String(v));
+    });
+
+    const n = data.length;
+    const slot = plot.height / n;
+    const bh = Math.min(barWidth, slot - barGap);
+    data.forEach((d, i) => {
+      const cy = plot.top + slot * (i + 0.5);
+      const y = cy - bh / 2;
+      const w = (d.value / axisMax) * plot.width;
+      const x = plot.left;
+      el('rect', {x: x, y: y, width: w, height: bh, fill: d.color || barColor});
+      if (valueLabels) {
+        el('text', {x: x + w + 10, y: cy + 6, 'font-size': 20, fill: labelColor, 'text-anchor': 'start'}, d.label || String(d.value));
+      }
+    });
+
+    data.forEach((d, i) => {
+      const cy = plot.top + slot * (i + 0.5);
+      el('text', {x: plot.left - 10, y: cy + 6, 'font-size': 20, fill: '#111', 'text-anchor': 'end'}, d.category || '');
+    });
+
+    if (xTitle) {
+      el('text', {x: plot.left + plot.width / 2, y: plot.top + plot.height + 50, 'font-size': 18, fill: '#333', 'text-anchor': 'middle'}, xTitle);
+    }
+    if (yTitle) {
+      const tx = plot.left - 40;
+      const ty = plot.top + plot.height / 2;
+      el('text', {x: tx, y: ty, 'font-size': 18, fill: '#333', transform: 'rotate(-90 ' + tx + ' ' + ty + ')', 'text-anchor': 'middle'}, yTitle);
+    }
+  }
+}
+
+drawChart(document.getElementById('chart-pickcup'), [
+  {value: 20.00, label: '20.00'},
+  {value: 26.67, label: '26.67'},
+  {value: 53.33, label: '53.33'}
+], 60, {
+  orientation: 'vertical',
+  plot: {left: 70, top: 50, width: 510, height: 260},
+  ticks: [0, 10, 20, 30, 40, 50, 60],
+  barWidth: 80,
+  barGap: 20,
+  xLabels: ['200', '400', '800'],
+  yTitle: 'Pick Cup success (%)',
+  xTitle: 'Demonstrations'
+});
+
+drawChart(document.getElementById('chart-years'), [
+  {value: 2}, {value: 3}, {value: 1}, {value: 4}, {value: 5}, {value: 24}, {value: 70}, {value: 94}
+], 100, {
+  orientation: 'vertical',
+  plot: {left: 90, top: 60, width: 610, height: 260},
+  ticks: [0, 20, 40, 60, 80, 100],
+  barWidth: 56,
+  barGap: 10,
+  xLabels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+  yTitle: 'Papers',
+  xTitle: 'Year'
+});
+
+drawChart(document.getElementById('chart-robotfree'), [
+  {value: 41.4, category: 'All papers', label: '41.4% (84/203)', color: '#999'},
+  {value: 83.9, category: 'Handheld', label: '83.9% (26/31)', color: '#4a90e2'}
+], 100, {
+  orientation: 'horizontal',
+  plot: {left: 240, top: 70, width: 320, height: 210},
+  ticks: [0, 20, 40, 60, 80, 100],
+  barWidth: 52,
+  barGap: 20,
+  xTitle: 'Robot-free share (%)',
+  yTitle: 'Method'
+});
+</script>
+
+</body>
+</html>

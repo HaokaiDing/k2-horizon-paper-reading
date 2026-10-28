@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gripper Rush</title>
+<style>
+  html, body { margin:0; padding:0; overflow:hidden; background:#111; color:#eee;
+               font-family:Arial,Helvetica,sans-serif; user-select:none; }
+  #ui { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+  #overlay { position:absolute; inset:0; align-items:center; justify-content:center;
+             background:rgba(0,0,0,0.7); color:#fff; text-align:center;
+             font-size:clamp(16px, 2.8vh, 24px); display:none; pointer-events:none;
+             flex-direction:column; gap:0.35em; }
+  #overlay.show { display:flex; }
+  #overlay h1 { font-size:clamp(36px, 6.5vh, 64px); margin:0.4em 0; }
+  #overlay p { margin:0.3em 0; }
+  #buttons { position:absolute; left:1vh; bottom:1vh; display:flex; gap:0.5vh;
+             pointer-events:auto; }
+  .btn { width:5vh; height:5vh; background:#333; border:none; color:#fff;
+         font-size:3vh; border-radius:1vh; touch-action:manipulation; }
+  .btn:active { background:#555; }
+  #restartBtn { position:absolute; top:1vh; right:1vh; width:6vh; height:5vh;
+                background:#c33; border:none; color:#fff;
+                font-size:clamp(14px, 2.2vh, 20px); border-radius:1vh;
+                pointer-events:auto; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="ui">
+  <div id="overlay">
+    <h1 id="title">Gripper Rush</h1>
+    <p id="msg"></p>
+    <p id="controls1"></p>
+    <p id="controls2"></p>
+    <p id="final"></p>
+    <p id="best"></p>
+    <p id="prompt"></p>
+  </div>
+  <div id="buttons">
+    <button class="btn" id="leftBtn">◀</button>
+    <button class="btn" id="rightBtn">▶</button>
+    <button class="btn" id="downBtn">⤓</button>
+  </div>
+  <button id="restartBtn">Restart</button>
+</div>
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  const title = document.getElementById('title');
+  const msg = document.getElementById('msg');
+  const controls1 = document.getElementById('controls1');
+  const controls2 = document.getElementById('controls2');
+  const final = document.getElementById('final');
+  const best = document.getElementById('best');
+  const prompt = document.getElementById('prompt');
+  const leftBtn = document.getElementById('leftBtn');
+  const rightBtn = document.getElementById('rightBtn');
+  const downBtn = document.getElementById('downBtn');
+  const restartBtn = document.getElementById('restartBtn');
+
+  // ---------- constants ----------
+  const VIRTUAL_W = 16, VIRTUAL_H = 9;
+  const COLORS = { red:'#e74c3c', blue:'#3498db', yellow:'#f1c40f' };
+  const OBJECT_TYPES = ['cube','cylinder','egg'];
+  const TYPE_COLOR = { cube:'red', cylinder:'blue', egg:'yellow' };
+
+  const BASE_BELT_SPEED = 0.9;
+  const BASE_SPAWN_INTERVAL = 3.0;
+  const MIN_SPAWN_INTERVAL = 1.8;
+  const SPAWN_SHRINK_PER_LEVEL = 0.9;
+
+  const FAST_DROP_WINDOW = 0.35;
+  const HUD_H = 1.1;
+  const GANTRY_Y = 1.6;
+  const GRIPPER_UP_Y = GANTRY_Y;
+  const BELT_Y = 5.4;
+  const BELT_H = 0.6;
+  const FLOOR_Y = VIRTUAL_H - 0.2;
+
+  const GRIPPER_MOVE_SPEED = 12;
+  const GRIPPER_DOWN_SPEED = 6;
+  const GRIPPER_UP_SPEED = 6;
+  const FAST_DROP_SPEED = 12;
+
+  // ---------- game state ----------
+  let state = 'start';
+  let score = 0, sorted = 0, lives = 3, combo = 0, level = 1;
+  let objects = [], particles = [], cracks = [], falling = [];
+  let gripperX = VIRTUAL_W/2, gripperY = GRIPPER_UP_Y;
+  let gripperState = 'up';
+  let holdingObj = null;
+  let fastDrop = false;
+  let lastSpace = 0;
+  let spawnTimer = 0;
+  let bestScore = 0;
+  let width, height, scale, offsetX, offsetY, dpr = 1;
+
+  // ---------- best score ----------
+  try {
+    const saved = localStorage.getItem('gripperRushBest');
+    if (saved) bestScore = parseInt(saved,10) || 0;
+  } catch(e) {}
+
+  // ---------- resize ----------
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    const w = window.innerWidth, h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const s = Math.min(w / VIRTUAL_W, h / VIRTUAL_H);
+    scale = s;
+    offsetX = (w - VIRTUAL_W * s) / 2;
+    offsetY = (h - VIRTUAL_H * s) / 2;
+    width = VIRTUAL_W;
+    height = VIRTUAL_H;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ---------- input ----------
+  const keys = {};
+  window.addEventListener('keydown', e => {
+    if (e.key === 'r' || e.key === 'R') {
+      if (state === 'start') startGame();
+      else resetGame();
+      return;
+    }
+    if (state === 'start') { startGame(); return; }
+    const k = e.key.toLowerCase();
+    if (k === 'arrowleft') keys['left'] = true;
+    else if (k === 'arrowright') keys['right'] = true;
+    else if (k === 'a') keys['a'] = true;
+    else if (k === 'd') keys['d'] = true;
+    else if (k === ' ' || k === 'spacebar' || k === 'arrowdown' || k === 's') {
+      if (e.repeat) return;
+      e.preventDefault();
+      handleSpace();
+    } else {
+      keys[k] = true;
+    }
+  });
+  window.addEventListener('keyup', e => {
+    const k = e.key.toLowerCase();
+    if (k === 'arrowleft') keys['left'] = false;
+    else if (k === 'arrowright') keys['right'] = false;
+    else if (k === 'a') keys['a'] = false;
+    else if (k === 'd') keys['d'] = false;
+    else keys[k] = false;
+  });
+  window.addEventListener('mousedown', () => { if (state === 'start') startGame(); });
+  window.addEventListener('touchstart', () => { if (state === 'start') startGame(); }, {passive:true});
+
+  function setBtn(btn, key, active) {
+    if (active) keys[key] = true;
+    else keys[key] = false;
+  }
+  leftBtn.addEventListener('pointerdown', () => { if (state==='play') setBtn(leftBtn,'a',true); });
+  leftBtn.addEventListener('pointerup', () => setBtn(leftBtn,'a',false));
+  leftBtn.addEventListener('pointerleave', () => setBtn(leftBtn,'a',false));
+  leftBtn.addEventListener('pointercancel', () => setBtn(leftBtn,'a',false));
+  rightBtn.addEventListener('pointerdown', () => { if (state==='play') setBtn(rightBtn,'d',true); });
+  rightBtn.addEventListener('pointerup', () => setBtn(rightBtn,'d',false));
+  rightBtn.addEventListener('pointerleave', () => setBtn(rightBtn,'d',false));
+  rightBtn.addEventListener('pointercancel', () => setBtn(rightBtn,'d',false));
+  downBtn.addEventListener('pointerdown', () => { if (state==='play') handleSpace(); });
+  downBtn.addEventListener('pointerup', () => {});
+  downBtn.addEventListener('pointerleave', () => {});
+  downBtn.addEventListener('pointercancel', () => {});
+  restartBtn.addEventListener('click', resetGame);
+
+  function handleSpace() {
+    if (state !== 'play') return;
+    const now = performance.now() / 1000;
+    if (gripperState === 'up') {
+      gripperState = 'down';
+      fastDrop = false;
+      lastSpace = now;
+    } else if (gripperState === 'down') {
+      if (now - lastSpace < FAST_DROP_WINDOW) fastDrop = true;
+    } else if (gripperState === 'holding') {
+      dropObject();
+    }
+  }
+
+  // ---------- game flow ----------
+  function startGame() {
+    if (state === 'start') resetGame();
+  }
+
+  function resetGame() {
+    state = 'play';
+    score = 0; sorted = 0; lives = 3; combo = 0; level = 1;
+    objects = []; particles = []; cracks = []; falling = [];
+    gripperX = VIRTUAL_W/2; gripperY = GRIPPER_UP_Y;
+    gripperState = 'up'; holdingObj = null; fastDrop = false;
+    spawnTimer = 0; lastSpace = 0;
+    for (const k in keys) keys[k] = false;
+    overlay.classList.remove('show');
+  }
+
+  function endGame(win) {
+    state = win ? 'win' : 'lose';
+    title.textContent = win ? 'Line cleared!' : 'Line stopped';
+    msg.textContent = win ? 'You sorted all 20 objects!' : 'You ran out of lives.';
+    final.textContent = 'Final score: ' + score;
+    if (score > bestScore) {
+      bestScore = score;
+      try { localStorage.setItem('gripperRushBest', bestScore); } catch(e) {}
+    }
+    best.textContent = 'Best score: ' + bestScore;
+    prompt.textContent = win ? 'Press R to play again' : 'Press R to retry';
+    overlay.classList.add('show');
+  }
+
+  function getSpawnInterval() {
+    return Math.max(MIN_SPAWN_INTERVAL, BASE_SPAWN_INTERVAL * Math.pow(SPAWN_SHRINK_PER_LEVEL, level - 1));
+  }
+  function getBeltSpeed() {
+    return BASE_BELT_SPEED * (1 + 0.1 * (level - 1));
+  }
+
+  // ---------- object handling ----------
+  function spawnObject() {
+    const type = OBJECT_TYPES[Math.floor(Math.random()*OBJECT_TYPES.length)];
+    const color = TYPE_COLOR[type];
+    const size = 0.5 + Math.random()*0.3;
+    objects.push({
+      type, color,
+      x: -size,
+      y: BELT_Y + BELT_H/2 - size/2,
+      w: size, h: size,
+      shape: type
+    });
+  }
+
+  function getBins() {
+    const binW = 1.2, binH = 0.8, gap = 0.3;
+    const totalW = binW*3 + gap*2;
+    const startX = VIRTUAL_W - totalW - 0.5;
+    const y = VIRTUAL_H - binH - 0.2;
+    return [
+      { x:startX, y, w:binW, h:binH, color:'red', label:'RED' },
+      { x:startX+binW+gap, y, w:binW, h:binH, color:'blue', label:'BLUE' },
+      { x:startX+2*(binW+gap), y, w:binW, h:binH, color:'yellow', label:'YELLOW' }
+    ];
+  }
+
+  function dropObject() {
+    if (!holdingObj) { gripperState = 'up'; gripperY = GRIPPER_UP_Y; return; }
+    const obj = holdingObj;
+    falling.push({
+      x: gripperX - obj.w/2,
+      y: gripperY + 0.5 + obj.h/2,
+      w: obj.w, h: obj.h,
+      color: obj.color,
+      shape: obj.shape,
+      vy: 0,
+      falling: true
+    });
+    holdingObj = null;
+    gripperState = 'up';
+    gripperY = GRIPPER_UP_Y;
+  }
+
+  // ---------- update ----------
+  function update(dt) {
+    if (state !== 'play') return;
+    if (dt > 0.05) dt = 0.05;
+
+    if (keys['a'] || keys['left']) gripperX -= GRIPPER_MOVE_SPEED * dt;
+    if (keys['d'] || keys['right']) gripperX += GRIPPER_MOVE_SPEED * dt;
+    gripperX = Math.max(0.6, Math.min(VIRTUAL_W - 0.6, gripperX));
+
+    spawnTimer += dt;
+    if (spawnTimer > getSpawnInterval()) {
+      spawnTimer = 0;
+      spawnObject();
+    }
+
+    const beltSpeed = getBeltSpeed();
+    for (const o of objects) o.x += beltSpeed * dt;
+    objects = objects.filter(o => {
+      if (o.x > VIRTUAL_W) {
+        lives--;
+        combo = 0;
+        if (lives <= 0) endGame(false);
+        return false;
+      }
+      return true;
+    });
+    if (state !== 'play') return;
+
+    if (gripperState === 'down') {
+      const downSpeed = fastDrop ? FAST_DROP_SPEED : GRIPPER_DOWN_SPEED;
+      if (gripperY < BELT_Y - 0.2) {
+        gripperY += downSpeed * dt;
+      } else {
+        gripperY = BELT_Y - 0.2;
+        const gx = gripperX;
+        const reach = 0.3;
+        const target = objects.find(o => gx >= o.x - reach && gx <= o.x + o.w + reach);
+        if (target) {
+          if (fastDrop && target.type === 'egg') {
+            lives--;
+            combo = 0;
+            const cx = target.x + target.w/2;
+            const cy = target.y + target.h/2;
+            for (let i=0;i<6;i++) {
+              particles.push({
+                x: cx, y: cy,
+                vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2,
+                life: 0.4, maxLife: 0.4, color: '#fff'
+              });
+            }
+            for (let i=0;i<4;i++) {
+              cracks.push({
+                x: cx, y: cy,
+                angle: Math.random()*Math.PI,
+                length: target.w*0.7 + 0.1,
+                size: 0.06,
+                life: 0.5, maxLife: 0.5,
+                color: '#6b4a00'
+              });
+            }
+            objects = objects.filter(o => o !== target);
+            if (lives <= 0) endGame(false);
+            gripperState = 'up';
+            gripperY = GRIPPER_UP_Y;
+          } else {
+            holdingObj = target;
+            objects = objects.filter(o => o !== target);
+            gripperState = 'lifting';
+          }
+        } else {
+          gripperState = 'up';
+          gripperY = GRIPPER_UP_Y;
+        }
+      }
+    }
+    if (state !== 'play') return;
+
+    if (gripperState === 'lifting') {
+      if (gripperY > GRIPPER_UP_Y) {
+        gripperY -= GRIPPER_UP_SPEED * dt;
+      } else {
+        gripperY = GRIPPER_UP_Y;
+        gripperState = 'holding';
+      }
+    }
+
+    for (let i=falling.length-1; i>=0; i--) {
+      const f = falling[i];
+      f.vy += 9.8 * dt;
+      f.y += f.vy * dt;
+      const bins = getBins();
+      let landed = false;
+      for (const b of bins) {
+        const fx = f.x + f.w/2;
+        if (fx >= b.x && fx <= b.x + b.w && f.y + f.h >= b.y) {
+          landed = true;
+          if (b.color === f.color) {
+            score += 10;
+            sorted++;
+            combo++;
+            if (combo >= 3) score += 5;
+            for (let p=0;p<8;p++) {
+              particles.push({
+                x: f.x + f.w/2, y: f.y + f.h/2,
+                vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2,
+                life: 0.5, maxLife: 0.5, color: COLORS[f.color]
+              });
+            }
+            const newLevel = Math.floor(sorted/5) + 1;
+            if (newLevel !== level) level = newLevel;
+          } else {
+            lives--;
+            combo = 0;
+            for (let p=0;p<5;p++) {
+              particles.push({
+                x: f.x + f.w/2, y: f.y + f.h/2,
+                vx: (Math.random()-0.5)*1.5, vy: (Math.random()-0.5)*1.5,
+                life: 0.4, maxLife: 0.4, color: '#888'
+              });
+            }
+          }
+          break;
+        }
+      }
+      if (!landed && f.y + f.h >= FLOOR_Y) {
+        landed = true;
+        lives--;
+        combo = 0;
+        for (let p=0;p<5;p++) {
+          particles.push({
+            x: f.x + f.w/2, y: f.y + f.h/2,
+            vx: (Math.random()-0.5)*1.5, vy: (Math.random()-0.5)*1.5,
+            life: 0.4, maxLife: 0.4, color: '#888'
+          });
+        }
+      }
+      if (landed) {
+        falling.splice(i,1);
+        if (lives <= 0) endGame(false);
+        else if (sorted >= 20) endGame(true);
+      }
+    }
+    if (state !== 'play') return;
+
+    for (let i=particles.length-1; i>=0; i--) {
+      const p = particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      if (p.life <= 0) particles.splice(i,1);
+    }
+    for (let i=cracks.length-1; i>=0; i--) {
+      const c = cracks[i];
+      c.life -= dt;
+      if (c.life <= 0) cracks.splice(i,1);
+    }
+  }
+
+  // ---------- draw ----------
+  function draw() {
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, 0, VIRTUAL_W, VIRTUAL_H);
+
+    drawHUD();
+    drawGantry();
+
+    ctx.fillStyle = '#444';
+    ctx.fillRect(0, BELT_Y, VIRTUAL_W, BELT_H);
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 0.02;
+    for (let x=0; x<VIRTUAL_W; x+=0.4) {
+      ctx.beginPath();
+      ctx.moveTo(x, BELT_Y);
+      ctx.lineTo(x-0.2, BELT_Y+BELT_H);
+      ctx.stroke();
+    }
+
+    const bins = getBins();
+    for (const b of bins) {
+      ctx.fillStyle = COLORS[b.color];
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 0.03;
+      ctx.strokeRect(b.x, b.y, b.w, b.h);
+      let labelSize = 0.34;
+      ctx.font = labelSize + 'px Arial';
+      while (labelSize > 0.1 && ctx.measureText(b.label).width > b.w * 0.9) {
+        labelSize -= 0.02;
+        ctx.font = labelSize + 'px Arial';
+      }
+      ctx.fillStyle = '#000';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(b.label, b.x + b.w/2, b.y + b.h/2);
+    }
+
+    for (const o of objects) drawObject(o);
+    for (const f of falling) drawObject(f);
+    drawGripper();
+
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 0.05, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    for (const c of cracks) {
+      ctx.globalAlpha = Math.max(0, c.life / c.maxLife);
+      ctx.strokeStyle = c.color;
+      ctx.lineWidth = c.size;
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(c.angle);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(c.length, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+  }
+
+  function drawGantry() {
+    ctx.strokeStyle = '#4a4a4a';
+    ctx.lineWidth = 0.07;
+    ctx.beginPath();
+    ctx.moveTo(0, GANTRY_Y);
+    ctx.lineTo(VIRTUAL_W, GANTRY_Y);
+    ctx.stroke();
+  }
+
+  function drawObject(o) {
+    const cx = o.x + o.w/2, cy = o.y + o.h/2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.fillStyle = COLORS[o.color];
+    if (o.shape === 'cube') {
+      ctx.fillRect(-o.w/2, -o.h/2, o.w, o.h);
+    } else if (o.shape === 'cylinder') {
+      ctx.beginPath();
+      ctx.arc(0, 0, o.w/2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillRect(-o.w/2, -o.h/2, o.w, o.h/2);
+    } else if (o.shape === 'egg') {
+      ctx.beginPath();
+      ctx.ellipse(0, 0, o.w/2, o.h/2, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawGripper() {
+    const jawW = 0.3, jawH = 0.5;
+    const open = gripperState === 'up' || gripperState === 'down';
+    const gap = open ? 0.15 : 0.02;
+    ctx.save();
+    ctx.translate(gripperX, gripperY);
+    ctx.fillStyle = '#999';
+    ctx.fillRect(-jawW/2 - gap/2, 0, jawW/2, jawH);
+    ctx.fillRect(gap/2, 0, jawW/2, jawH);
+    if (holdingObj && (gripperState === 'holding' || gripperState === 'lifting')) {
+      ctx.save();
+      ctx.translate(0, jawH);
+      drawObject({ ...holdingObj, x: -holdingObj.w/2, y: 0 });
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function drawHUD() {
+    ctx.fillStyle = '#151515';
+    ctx.fillRect(0, 0, VIRTUAL_W, HUD_H);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 0.04;
+    ctx.beginPath();
+    ctx.moveTo(0, HUD_H);
+    ctx.lineTo(VIRTUAL_W, HUD_H);
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '0.45px Arial';
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
+    ctx.fillText('Score: ' + score, 0.4, 0.22);
+    ctx.fillText('Sorted: ' + sorted + ' / 20', 0.4, 0.66);
+
+    for (let i=0; i<lives; i++) {
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath();
+      ctx.arc(4.0 + i*0.36, 0.82, 0.15, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('Level: ' + level, VIRTUAL_W - 1.0, 0.22);
+    ctx.fillText('Combo: ' + combo, VIRTUAL_W - 1.0, 0.66);
+  }
+
+  // ---------- start screen ----------
+  function showStartScreen() {
+    title.textContent = 'Gripper Rush';
+    msg.textContent = 'Sort 20 objects into the correct bins before you run out of 3 lives.';
+    controls1.textContent = '← → or A / D: move   ·   Space / ↓ / S: lower, grab, drop';
+    controls2.textContent = 'Tap Space twice quickly = fast drop (breaks eggs!)   ·   R: restart';
+    final.textContent = '';
+    best.textContent = 'Best score: ' + bestScore;
+    prompt.textContent = 'Press any key or click to start';
+    overlay.classList.add('show');
+  }
+  showStartScreen();
+
+  // ---------- main loop ----------
+  let lastTime = performance.now();
+  function loop(now) {
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

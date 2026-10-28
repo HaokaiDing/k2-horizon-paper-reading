@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gripper Rush</title>
+<style>
+  html, body { margin:0; padding:0; overflow:hidden; background:#111; color:#eee;
+               font-family:Arial,Helvetica,sans-serif; user-select:none; }
+  #ui { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+  #overlay { position:absolute; inset:0; display:flex; flex-direction:column;
+             align-items:center; justify-content:center; background:rgba(0,0,0,0.7);
+             color:#fff; text-align:center; font-size:2vh; display:none; }
+  #overlay.show { display:flex; }
+  #overlay h1 { font-size:5vh; margin:0.5em 0; }
+  #overlay p { margin:0.3em 0; }
+  #buttons { position:absolute; left:1vh; bottom:1vh; display:flex; gap:0.5vh;
+             pointer-events:auto; }
+  .btn { width:5vh; height:5vh; background:#333; border:none; color:#fff;
+         font-size:3vh; border-radius:1vh; touch-action:manipulation; }
+  .btn:active { background:#555; }
+  #restartBtn { position:absolute; right:1vh; bottom:1vh; width:6vh; height:5vh;
+                background:#c33; border:none; color:#fff; font-size:2.5vh;
+                border-radius:1vh; pointer-events:auto; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="ui">
+  <div id="overlay">
+    <h1 id="title">Gripper Rush</h1>
+    <p id="msg"></p>
+    <p id="final"></p>
+    <p id="best"></p>
+    <p>Press R to play again</p>
+  </div>
+  <div id="buttons">
+    <button class="btn" id="leftBtn">◀</button>
+    <button class="btn" id="rightBtn">▶</button>
+    <button class="btn" id="downBtn">⤓</button>
+  </div>
+  <button id="restartBtn">Restart</button>
+</div>
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  const title = document.getElementById('title');
+  const msg = document.getElementById('msg');
+  const final = document.getElementById('final');
+  const best = document.getElementById('best');
+  const leftBtn = document.getElementById('leftBtn');
+  const rightBtn = document.getElementById('rightBtn');
+  const downBtn = document.getElementById('downBtn');
+  const restartBtn = document.getElementById('restartBtn');
+
+  // ---------- constants ----------
+  const VIRTUAL_W = 16, VIRTUAL_H = 9;
+  const COLORS = { red:'#e74c3c', blue:'#3498db', yellow:'#f1c40f' };
+  const OBJECT_TYPES = ['cube','cylinder','egg'];
+  const TYPE_COLOR = { cube:'red', cylinder:'blue', egg:'yellow' };
+  const BASE_SPEED = 1.2; // virtual units per second
+  const SPAWN_INTERVAL = 1.6; // seconds
+  const FAST_DROP_WINDOW = 0.35; // seconds
+
+  // ---------- game state ----------
+  let state = 'start'; // start, play, win, lose
+  let score = 0, sorted = 0, lives = 3, combo = 0, level = 1;
+  let objects = [], particles = [];
+  let gripperX = VIRTUAL_W/2, gripperY = 0.8;
+  let gripperState = 'up'; // up, down, holding
+  let holdingObj = null;
+  let fastDrop = false;
+  let lastSpace = 0;
+  let spawnTimer = 0;
+  let bestScore = 0;
+  let width, height, scale, offsetX, offsetY;
+
+  // ---------- best score ----------
+  try {
+    const saved = localStorage.getItem('gripperRushBest');
+    if (saved) bestScore = parseInt(saved,10) || 0;
+  } catch(e) {}
+
+  // ---------- resize ----------
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const w = window.innerWidth, h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const s = Math.min(w / VIRTUAL_W, h / VIRTUAL_H);
+    scale = s;
+    offsetX = (w - VIRTUAL_W * s) / 2;
+    offsetY = (h - VIRTUAL_H * s) / 2;
+    width = VIRTUAL_W;
+    height = VIRTUAL_H;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ---------- input ----------
+  const keys = {};
+  window.addEventListener('keydown', e => {
+    if (state === 'start') { startGame(); return; }
+    if (e.key === 'r' || e.key === 'R') { resetGame(); return; }
+    keys[e.key.toLowerCase()] = true;
+    if (e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      handleSpace();
+    }
+  });
+  window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+  // mouse / touch anywhere starts from start screen
+  window.addEventListener('mousedown', () => { if (state === 'start') startGame(); });
+  window.addEventListener('touchstart', () => { if (state === 'start') startGame(); }, {passive:true});
+
+  leftBtn.addEventListener('pointerdown', () => { if (state==='play') keys['a']=true; });
+  leftBtn.addEventListener('pointerup', () => { keys['a']=false; });
+  rightBtn.addEventListener('pointerdown', () => { if (state==='play') keys['d']=true; });
+  rightBtn.addEventListener('pointerup', () => { keys['d']=false; });
+  downBtn.addEventListener('pointerdown', () => { if (state==='play') handleSpace(); });
+  restartBtn.addEventListener('click', resetGame);
+
+  function handleSpace() {
+    if (state !== 'play') return;
+    const now = performance.now() / 1000;
+    if (gripperState === 'up') {
+      // start lowering
+      gripperState = 'down';
+      fastDrop = false;
+      // find target object directly below
+      const gx = gripperX;
+      const target = objects.find(o => gx >= o.x && gx <= o.x + o.w && o.y > gripperY);
+      if (target) {
+        target.targetY = gripperY + 0.2; // just above object
+        holdingObj = target; // tentative
+      } else {
+        holdingObj = null;
+      }
+      lastSpace = now;
+    } else if (gripperState === 'down') {
+      // second press -> fast drop
+      if (now - lastSpace < FAST_DROP_WINDOW) fastDrop = true;
+    } else if (gripperState === 'holding') {
+      // drop held object
+      dropObject();
+    }
+  }
+
+  // ---------- game flow ----------
+  function startGame() {
+    if (state === 'start') {
+      resetGame();
+    }
+  }
+
+  function resetGame() {
+    state = 'play';
+    score = 0; sorted = 0; lives = 3; combo = 0; level = 1;
+    objects = []; particles = [];
+    gripperX = VIRTUAL_W/2; gripperY = 0.8;
+    gripperState = 'up'; holdingObj = null; fastDrop = false;
+    spawnTimer = 0;
+    overlay.classList.remove('show');
+  }
+
+  function endGame(win) {
+    state = win ? 'win' : 'lose';
+    title.textContent = win ? 'Line cleared!' : 'Line stopped';
+    msg.textContent = win ? 'You sorted all 20 objects!' : 'You ran out of lives.';
+    final.textContent = 'Final score: ' + score;
+    if (score > bestScore) {
+      bestScore = score;
+      try { localStorage.setItem('gripperRushBest', bestScore); } catch(e) {}
+    }
+    best.textContent = 'Best score: ' + bestScore;
+    overlay.classList.add('show');
+  }
+
+  // ---------- object handling ----------
+  function spawnObject() {
+    const type = OBJECT_TYPES[Math.floor(Math.random()*OBJECT_TYPES.length)];
+    const color = TYPE_COLOR[type];
+    const size = 0.5 + Math.random()*0.3;
+    const obj = {
+      type, color,
+      x: -size,
+      y: 5.2, // belt level
+      w: size, h: size,
+      shape: type
+    };
+    objects.push(obj);
+  }
+
+  function dropObject() {
+    const obj = holdingObj;
+    if (!obj) { gripperState = 'up'; return; }
+    // find bin under gripper
+    const bins = getBins();
+    const gx = gripperX;
+    let hitBin = null;
+    for (const b of bins) {
+      if (gx >= b.x && gx <= b.x + b.w) { hitBin = b; break; }
+    }
+    if (hitBin && hitBin.color === obj.color) {
+      // correct
+      score += 10;
+      sorted++;
+      combo++;
+      if (combo >= 3) score += 5;
+      // particle burst
+      for (let i=0;i<8;i++) {
+        particles.push({
+          x: obj.x + obj.w/2, y: obj.y + obj.h/2,
+          vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2,
+          life: 0.5, maxLife: 0.5, color: COLORS[obj.color]
+        });
+      }
+      // level up every 5 sorted
+      const newLevel = Math.floor(sorted/5)+1;
+      if (newLevel !== level) level = newLevel;
+    } else {
+      // wrong
+      lives--;
+      combo = 0;
+      // small particle burst (gray)
+      for (let i=0;i<5;i++) {
+        particles.push({
+          x: obj.x + obj.w/2, y: obj.y + obj.h/2,
+          vx: (Math.random()-0.5)*1.5, vy: (Math.random()-0.5)*1.5,
+          life: 0.4, maxLife: 0.4, color: '#888'
+        });
+      }
+    }
+    // remove object from objects array
+    objects = objects.filter(o => o !== obj);
+    holdingObj = null;
+    gripperState = 'up';
+    if (lives <= 0) endGame(false);
+    else if (sorted >= 20) endGame(true);
+  }
+
+  function getBins() {
+    const binW = 1.2, binH = 0.8, gap = 0.3;
+    const totalW = binW*3 + gap*2;
+    const startX = VIRTUAL_W - totalW - 0.5;
+    const y = VIRTUAL_H - binH - 0.2;
+    return [
+      { x:startX, y, w:binW, h:binH, color:'red', label:'RED' },
+      { x:startX+binW+gap, y, w:binW, h:binH, color:'blue', label:'BLUE' },
+      { x:startX+2*(binW+gap), y, w:binW, h:binH, color:'yellow', label:'YELLOW' }
+    ];
+  }
+
+  // ---------- update ----------
+  function update(dt) {
+    if (state !== 'play') return;
+
+    // input movement
+    const moveSpeed = 3;
+    if (keys['a'] || keys['left']) gripperX -= moveSpeed * dt;
+    if (keys['d'] || keys['right']) gripperX += moveSpeed * dt;
+    gripperX = Math.max(0.5, Math.min(VIRTUAL_W-0.5, gripperX));
+
+    // spawn
+    spawnTimer += dt;
+    if (spawnTimer > SPAWN_INTERVAL) {
+      spawnTimer = 0;
+      spawnObject();
+    }
+
+    // belt speed
+    const beltSpeed = BASE_SPEED * (1 + 0.1*(level-1));
+
+    // move objects
+    for (const o of objects) {
+      o.x += beltSpeed * dt;
+    }
+    // remove off-screen right
+    objects = objects.filter(o => {
+      if (o.x > VIRTUAL_W) {
+        // missed
+        lives--;
+        combo = 0;
+        if (lives <= 0) endGame(false);
+        return false;
+      }
+      return true;
+    });
+
+    // gripper lowering
+    if (gripperState === 'down') {
+      const target = holdingObj;
+      const downSpeed = 2.5;
+      if (target) {
+        // lower until just above object
+        if (gripperY < target.y - target.h - 0.05) {
+          gripperY += downSpeed * dt;
+        } else {
+          // reached object
+          gripperY = target.y - target.h - 0.05;
+          if (fastDrop && target.type === 'egg') {
+            // break egg
+            lives--;
+            combo = 0;
+            // crack particles
+            for (let i=0;i<6;i++) {
+              particles.push({
+                x: target.x + target.w/2, y: target.y + target.h/2,
+                vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2,
+                life: 0.4, maxLife: 0.4, color: '#fff'
+              });
+            }
+            objects = objects.filter(o => o !== target);
+            holdingObj = null;
+            gripperState = 'up';
+            if (lives <= 0) endGame(false);
+          } else {
+            // grab
+            gripperState = 'holding';
+            // keep holdingObj
+          }
+        }
+      } else {
+        // lower to belt level
+        const beltY = 5.2;
+        if (gripperY < beltY - 0.2) {
+          gripperY += downSpeed * dt;
+        } else {
+          gripperY = beltY - 0.2;
+          gripperState = 'up';
+        }
+      }
+    }
+
+    // particles
+    for (let i=particles.length-1; i>=0; i--) {
+      const p = particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      if (p.life <= 0) particles.splice(i,1);
+    }
+  }
+
+  // ---------- draw ----------
+  function draw() {
+    // clear
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0,0,VIRTUAL_W,VIRTUAL_H);
+
+    // letterbox transform
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+
+    // background details
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0,0,VIRTUAL_W,VIRTUAL_H);
+
+    // conveyor belt
+    const beltY = 5.2, beltH = 0.6;
+    ctx.fillStyle = '#444';
+    ctx.fillRect(0, beltY, VIRTUAL_W, beltH);
+    // belt marks
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 0.02;
+    for (let x=0; x<VIRTUAL_W; x+=0.4) {
+      ctx.beginPath();
+      ctx.moveTo(x, beltY);
+      ctx.lineTo(x-0.2, beltY+beltH);
+      ctx.stroke();
+    }
+
+    // bins
+    const bins = getBins();
+    for (const b of bins) {
+      ctx.fillStyle = COLORS[b.color];
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 0.03;
+      ctx.strokeRect(b.x, b.y, b.w, b.h);
+      ctx.fillStyle = '#000';
+      ctx.font = '0.3vh Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(b.label, b.x + b.w/2, b.y + b.h/2);
+    }
+
+    // objects
+    for (const o of objects) {
+      drawObject(o);
+    }
+
+    // gripper
+    drawGripper();
+
+    // particles
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 0.05, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // HUD
+    drawHUD();
+
+    ctx.restore();
+  }
+
+  function drawObject(o) {
+    const cx = o.x + o.w/2, cy = o.y + o.h/2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.fillStyle = COLORS[o.color];
+    if (o.shape === 'cube') {
+      ctx.fillRect(-o.w/2, -o.h/2, o.w, o.h);
+    } else if (o.shape === 'cylinder') {
+      ctx.beginPath();
+      ctx.arc(0, 0, o.w/2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillRect(-o.w/2, -o.h/2, o.w, o.h/2);
+    } else if (o.shape === 'egg') {
+      ctx.beginPath();
+      ctx.ellipse(0, 0, o.w/2, o.h/2, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawGripper() {
+    const jawW = 0.3, jawH = 0.5;
+    const open = gripperState === 'up' || gripperState === 'down';
+    const gap = open ? 0.15 : 0.02;
+    ctx.save();
+    ctx.translate(gripperX, gripperY);
+    // gantry
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 0.05;
+    ctx.beginPath();
+    ctx.moveTo(-0.5, 0);
+    ctx.lineTo(0.5, 0);
+    ctx.stroke();
+    // jaws
+    ctx.fillStyle = '#999';
+    // left jaw
+    ctx.fillRect(-jawW/2 - gap/2, 0, jawW/2, jawH);
+    // right jaw
+    ctx.fillRect(gap/2, 0, jawW/2, jawH);
+    // if holding, draw object between jaws
+    if (holdingObj && gripperState === 'holding') {
+      ctx.save();
+      ctx.translate(0, jawH + holdingObj.h/2);
+      drawObject(holdingObj);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function drawHUD() {
+    ctx.fillStyle = '#fff';
+    ctx.font = '0.5vh Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('Score: ' + score, 0.3, 0.3);
+    ctx.fillText('Sorted: ' + sorted + ' / 20', 0.3, 0.8);
+    ctx.fillText('Level: ' + level, 0.3, 1.3);
+    // lives
+    for (let i=0; i<lives; i++) {
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath();
+      ctx.arc(2.5 + i*0.4, 1.8, 0.15, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // ---------- main loop ----------
+  let lastTime = performance.now();
+  function loop(now) {
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

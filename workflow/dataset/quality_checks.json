@@ -1,0 +1,112 @@
+{
+  "rows": 203,
+  "missing_values": {
+    "arxiv_id": 0,
+    "doi": 0,
+    "title": 0,
+    "year": 0,
+    "arxiv_subjects": 0,
+    "license": 109,
+    "collection_method": 0,
+    "end_effector": 0,
+    "robot_free_collection": 0,
+    "cross_embodiment": 0,
+    "releases_dataset": 0,
+    "num_demonstrations": 176,
+    "k2_rationale": 0
+  },
+  "duplicates": {
+    "arxiv_id": [],
+    "normalised_title": []
+  },
+  "type_errors": {
+    "arxiv_id_not_YYMM.NNNNN": [],
+    "year_not_int": [],
+    "num_demonstrations_not_int": [],
+    "doi_mismatch": [],
+    "year_vs_arxiv_id": []
+  },
+  "outliers": {
+    "year_range": [
+      2019,
+      2026
+    ],
+    "year_outside_2015_2026": [],
+    "num_demonstrations_summary": {
+      "n": 27,
+      "min": 3,
+      "median": 2100,
+      "max": 1200000,
+      "iqr_upper_fence": 24850.0
+    },
+    "num_demonstrations_above_fence": [
+      [
+        "2412.13877",
+        107000
+      ],
+      [
+        "2606.10244",
+        1200000
+      ],
+      [
+        "2607.21588",
+        50000
+      ],
+      [
+        "2609.23755",
+        179049
+      ]
+    ]
+  },
+  "category_counts": {
+    "collection_method": {
+      "other_teleop": 69,
+      "vr_ar_teleop": 36,
+      "handheld_gripper": 31,
+      "exoskeleton": 21,
+      "glove_or_mocap": 15,
+      "human_video": 14,
+      "other": 9,
+      "leader_follower": 8
+    },
+    "end_effector": {
+      "unspecified": 108,
+      "dexterous_hand": 56,
+      "parallel_gripper": 18,
+      "other": 11,
+      "both": 10
+    },
+    "robot_free_collection": {
+      "no": 107,
+      "yes": 84,
+      "unclear": 12
+    },
+    "cross_embodiment": {
+      "unclear": 70,
+      "yes": 67,
+      "no": 66
+    },
+    "releases_dataset": {
+      "no": 149,
+      "yes": 34,
+      "unclear": 20
+    },
+    "license": {
+      "": 109,
+      "cc-by-4.0": 66,
+      "cc-by-nc-sa-4.0": 15,
+      "cc-by-nc-nd-4.0": 12,
+      "cc-by-sa-4.0": 1
+    }
+  },
+  "rows_per_year": {
+    "2019": 2,
+    "2020": 3,
+    "2021": 1,
+    "2022": 4,
+    "2023": 5,
+    "2024": 24,
+    "2025": 70,
+    "2026": 94
+  }
+}

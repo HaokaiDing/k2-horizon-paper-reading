@@ -1,0 +1,53 @@
+{
+  "steps": [
+    {
+      "step": 1,
+      "name": "fetch",
+      "rows_after": 360,
+      "note": "11 keyword queries over arXiv titles+abstracts in DataCite"
+    },
+    {
+      "step": 2,
+      "name": "dedupe",
+      "rows_after": 298,
+      "note": "one row per arXiv ID (same paper matched by several queries)"
+    },
+    {
+      "step": 3,
+      "name": "filter_ro",
+      "rows_after": 295,
+      "note": "kept records with Robotics (cs.RO) among their arXiv subjects"
+    },
+    {
+      "step": 4,
+      "name": "has_abstract",
+      "rows_after": 295,
+      "note": "kept records with an abstract of >= 200 characters (needed for annotation)"
+    },
+    {
+      "step": 5,
+      "name": "annotate",
+      "rows_after": 295,
+      "note": "K2 Horizon (IFM/K2-Horizon-375B-A23B) annotated each record from title + abstract"
+    },
+    {
+      "step": 6,
+      "name": "relevant",
+      "rows_after": 203,
+      "note": "kept rows K2 marked as presenting/depending on a demonstration-collection system"
+    },
+    {
+      "step": 7,
+      "name": "validate",
+      "rows_after": 203,
+      "note": "type/enum checks; 0 rows rejected"
+    },
+    {
+      "step": 8,
+      "name": "write",
+      "rows_after": 203,
+      "note": "final file demo_collection_systems.csv"
+    }
+  ],
+  "rejected": []
+}

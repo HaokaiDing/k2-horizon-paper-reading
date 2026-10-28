@@ -1,0 +1,28 @@
+{
+  "ref": 41,
+  "arxiv_id": "2403.07788",
+  "entry": "Chen Wang, Haochen Shi, Weizhuo Wang, Ruohan Zhang, Li Fei-Fei, and C Karen Liu. Dexcap: Scalable and portable mocap data collection system for dexterous manipulation. arXiv preprint arXiv:2403.07788, 2024.",
+  "contexts": [
+    "Furthermore, in dexterous hand manipulation tasks, IL has been extended to learn from human hand motion demonstrations [41, 8]."
+  ],
+  "model": "IFM/K2-Horizon-375B-A23B",
+  "latency_s": 6.17,
+  "usage": {
+    "completion_tokens": 366,
+    "prompt_tokens": 21954,
+    "total_tokens": 22320,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "source_chars": 89269,
+  "source_truncated": false,
+  "reasoning": "We need to decide if reference [41] (DexCap paper) supports the claim in FastUMI: \"Furthermore, in dexterous hand manipulation tasks, IL has been extended to learn from human hand motion demonstrations [41, 8].\"\n\nThe claim: IL has been extended to learn from human hand motion demonstrations, citing DexCap. Does DexCap paper support that? DexCap introduces a system for collecting human hand motion data and an imitation learning algorithm DEXIL that learns dexterous robot policies directly from human hand mocap data. So yes, it supports that IL has been extended to learn from human hand motion demonstrations. The paper explicitly says \"Imitation learning from human hand motion data presents a promising avenue...\" and \"we introduce DEXIL, a novel imitation algorithm for training dexterous robot skills directly from human hand mocap data.\" So supported.\n\nNeed quote max 60 words verbatim. Choose a passage: \"Imitation learning from human hand motion data presents a promising avenue for imbuing robots with human-like dexterity in real-world manipulation tasks.\" That's 20 words. Or \"we introduce DEXIL, a novel imitation algorithm for training dexterous robot skills directly from human hand mocap data.\" That's 20 words. Use one.\n\nReturn JSON.\n",
+  "content": "{\"claim\":\"FastUMI relies on reference [41] to support that imitation learning has been extended to learn dexterous manipulation from human hand motion demonstrations.\",\"status\":\"supported\",\"quote\":\"Imitation learning from human hand motion data presents a promising avenue for imbuing robots with human-like dexterity in real-world manipulation tasks.\",\"reason\":\"The DexCap paper explicitly frames imitation learning from human hand motion data as a promising approach and introduces DEXIL, an imitation algorithm that learns dexterous robot skills directly from human hand mocap data, directly backing the claim.\"}",
+  "parsed": {
+    "claim": "FastUMI relies on reference [41] to support that imitation learning has been extended to learn dexterous manipulation from human hand motion demonstrations.",
+    "status": "supported",
+    "quote": "Imitation learning from human hand motion data presents a promising avenue for imbuing robots with human-like dexterity in real-world manipulation tasks.",
+    "reason": "The DexCap paper explicitly frames imitation learning from human hand motion data as a promising approach and introduces DEXIL, an imitation algorithm that learns dexterous robot skills directly from human hand mocap data, directly backing the claim."
+  },
+  "quote_found_in_source": true
+}

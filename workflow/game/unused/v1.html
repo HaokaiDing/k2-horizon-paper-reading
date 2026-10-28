@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gripper Rush</title>
+<style>
+  html,body{margin:0;height:100%;background:#222;color:#eee;font-family:sans-serif;}
+  #ui{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+  #hud{position:absolute;top:10px;left:10px;pointer-events:none;font-size:18px;}
+  #hud span{margin-right:20px;}
+  #buttons{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);pointer-events:auto;}
+  button{margin:0 5px;padding:10px 15px;font-size:16px;background:#555;border:none;color:#fff;border-radius:5px;cursor:pointer;}
+  button:active{background:#777;}
+  #screen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);color:#fff;text-align:center;}
+  #screen.hidden{display:none;}
+  #screen h1{margin:0 0 20px;}
+  #screen p{margin:5px 0;}
+  #screen button{margin-top:20px;padding:10px 20px;font-size:18px;}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="ui">
+  <div id="hud" class="hidden">
+    <span id="score">Score: 0</span>
+    <span id="lives">Lives: 3</span>
+    <span id="target">Pick: CUBES</span>
+    <span id="speed">Speed: 1</span>
+  </div>
+
+  <div id="buttons" class="hidden">
+    <button id="btnLeft">←</button>
+    <button id="btnRight">→</button>
+    <button id="btnGrab">Grab/Drop</button>
+  </div>
+
+  <div id="screen" class="hidden">
+    <h1>Gripper Rush</h1>
+    <p>Move the gripper, grab the target shape and drop it in the bin.</p>
+    <p>Wrong drop = -5 points &amp; lose a life. Missing a target = lose a life.</p>
+    <p>Score 150 to win. 3 lives total.</p>
+    <button id="startBtn">Start</button>
+  </div>
+
+  <div id="gameover" class="hidden">
+    <h1 id="goTitle"></h1>
+    <p id="goScore"></p>
+    <p id="goBest"></p>
+    <button id="restartBtn">Restart</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = 800;
+  const H = canvas.height = 500;
+
+  // UI elements
+  const hud = document.getElementById('hud');
+  const scoreEl = document.getElementById('score');
+  const livesEl = document.getElementById('lives');
+  const targetEl = document.getElementById('target');
+  const speedEl = document.getElementById('speed');
+  const buttonsDiv = document.getElementById('buttons');
+  const startScreen = document.getElementById('screen');
+  const startBtn = document.getElementById('startBtn');
+  const gameOverScreen = document.getElementById('gameover');
+  const goTitle = document.getElementById('goTitle');
+  const goScore = document.getElementById('goScore');
+  const goBest = document.getElementById('goBest');
+  const restartBtn = document.getElementById('restartBtn');
+
+  // Game constants
+  const BELT_Y = 350, BELT_H = 80;
+  const BIN_X = 720, BIN_W = 70, BIN_H = 60;
+  const GRIPPER_W = 50, GRIPPER_H = 30;
+  const SPAWN_INTERVAL = 1500; // ms
+  const GRAB_TOL = 30; // px tolerance for successful grasp
+  const RAISE_TIME = 300; // ms after grab/release before gripper can lower again
+
+  // Shapes definition
+  const SHAPES = [
+    {name:'CUBE', draw:drawCube, color:'#ff6f61'},
+    {name:'SPHERE', draw:drawSphere, color:'#6fb3ff'},
+    {name:'CYLINDER', draw:drawCylinder, color:'#9b59b6'}
+  ];
+
+  // Game state
+  let state = 'start'; // start|play|pause|over
+  let lastTime = 0;
+  let spawnTimer = 0;
+  let objects = [];
+  let gripper = {x: W/2, y: BELT_Y-40, down:false, holding:null, raiseTimer:0};
+  let score = 0, lives = 3, correctCount = 0, bestScore = 0;
+  let targetShape = null;
+  let speedLevel = 1;
+
+  // ---------- Drawing helpers ----------
+  function drawCube(o){
+    ctx.fillStyle = o.color;
+    ctx.fillRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h);
+    ctx.strokeStyle = '#222';
+    ctx.strokeRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h);
+  }
+  function drawSphere(o){
+    ctx.fillStyle = o.color;
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, o.w/2, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#222';
+    ctx.stroke();
+  }
+  function drawCylinder(o){
+    ctx.fillStyle = o.color;
+    ctx.beginPath();
+    ctx.roundRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h, o.h/2);
+    ctx.fill();
+    ctx.strokeStyle = '#222';
+    ctx.stroke();
+  }
+
+  function drawGripper(){
+    const gx = gripper.x;
+    const gy = gripper.down ? BELT_Y - GRIPPER_H : gripper.y;
+    ctx.fillStyle = '#555';
+    ctx.fillRect(gx - GRIPPER_W/2, gy, GRIPPER_W, GRIPPER_H);
+    // simple claw lines
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(gx - GRIPPER_W/2, gy);
+    ctx.lineTo(gx - GRIPPER_W/2 - 10, gy - 15);
+    ctx.moveTo(gx + GRIPPER_W/2, gy);
+    ctx.lineTo(gx + GRIPPER_W/2 + 10, gy - 15);
+    ctx.stroke();
+    // held object
+    if (gripper.holding){
+      const o = gripper.holding;
+      o.x = gx;
+      o.y = gy - o.h/2 - 5;
+      drawShape(o);
+    }
+  }
+
+  function drawShape(o){
+    const shape = SHAPES.find(s=>s.name===o.type);
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    shape.draw({x:0,y:0,w:o.w,h:o.h,color:o.color});
+    ctx.restore();
+  }
+
+  function drawBin(){
+    ctx.fillStyle = '#444';
+    ctx.fillRect(BIN_X, BELT_Y - BIN_H, BIN_W, BIN_H);
+    ctx.strokeStyle = '#111';
+    ctx.strokeRect(BIN_X, BELT_Y - BIN_H, BIN_W, BIN_H);
+    ctx.fillStyle = '#222';
+    ctx.font = '14px sans-serif';
+    ctx.fillText('BIN', BIN_X + BIN_W/2 - 12, BELT_Y - BIN_H/2 + 5);
+  }
+
+  // ---------- Game logic ----------
+  function resetGame(){
+    objects = [];
+    gripper = {x: W/2, y: BELT_Y-40, down:false, holding:null, raiseTimer:0};
+    score = 0; lives = 3; correctCount = 0;
+    speedLevel = 1;
+    targetShape = SHAPES[Math.floor(Math.random()*SHAPES.length)].name;
+    spawnTimer = 0;
+    updateHUD();
+  }
+
+  function updateHUD(){
+    scoreEl.textContent = 'Score: '+score;
+    livesEl.textContent = 'Lives: '+lives;
+    targetEl.textContent = 'Pick: '+targetShape;
+    speedEl.textContent = 'Speed: '+speedLevel;
+  }
+
+  function spawnObject(){
+    const shape = SHAPES[Math.floor(Math.random()*SHAPES.length)];
+    const size = 40 + Math.random()*20;
+    objects.push({
+      x: -size,
+      y: BELT_Y - BELT_H/2,
+      w: size,
+      h: size,
+      type: shape.name,
+      color: shape.color
+    });
+  }
+
+  function changeTargetIfNeeded(){
+    if (correctCount > 0 && correctCount % 5 === 0){
+      // pick a new target different from current
+      const candidates = SHAPES.filter(s=>s.name!==targetShape);
+      targetShape = candidates[Math.floor(Math.random()*candidates.length)].name;
+    }
+  }
+
+  function loseLife(){
+    lives--;
+    if (lives <= 0){
+      endGame(false);
+    }
+  }
+
+  function endGame(won){
+    state = 'over';
+    if (score > bestScore) bestScore = score;
+���    goTitle.textContent = won ? 'You win!' : 'Game over';
+    goScore.textContent = 'Final score: '+score;
+    goBest.textContent = 'Best this session: '+bestScore;
+    gameOverScreen.classList.remove('hidden');
+    hud.classList.add('hidden');
+    buttonsDiv.classList.add('hidden');
+  }
+
+  // ---------- Input ----------
+  const keys = {};
+  window.addEventListener('keydown', e=>{
+    if (e.repeat) return;
+    keys[e.code] = true;
+    if (state==='start' && (e.code==='Enter')) startGame();
+    if (state==='over' && (e.code==='KeyR')) startGame();
+    if (state==='play'){
+      if (e.code==='Space') spacePress();
+      if (e.code==='KeyP') togglePause();
+    }
+  });
+  window.addEventListener('keyup', e=>keys[e.code]=false);
+
+  function spacePress(){
+    if (gripper.raiseTimer > 0) return; // busy raising
+    if (!gripper.down){
+      gripper.down = true;
+    } else {
+      if (gripper.holding){
+        releaseObject();
+      } else {
+        tryGrab();
+      }
+    }
+  }
+
+  function tryGrab(){
+    // find object under gripper within tolerance
+    const gx = gripper.x;
+    const candidates = objects.filter(o=>Math.abs(o.x - gx) < GRAB_TOL);
+    if (candidates.length){
+      // pick nearest
+      const obj = candidates.reduce((a,b)=>Math.abs(a.x-gx)<Math.abs(b.x-gx)?a:b);
+      gripper.holding = obj;
+      objects = objects.filter(o=>o!==obj);
+    }
+    // raise after short delay
+    gripper.raiseTimer = RAISE_TIME;
+    gripper.down = false;
+  }
+
+  function releaseObject(){
+    const obj = gripper.holding;
+    gripper.holding = null;
+    // check if over bin
+    if (gripper.x > BIN_X && gripper.x < BIN_X+BIN_W){
+      // correct?
+      if (obj.type === targetShape){
+        score += 10;
+        correctCount++;
+        changeTargetIfNeeded();
+        // speed up
+        speedLevel = 1 + Math.floor(score/30);
+      } else {
+        score -= 5;
+        loseLife();
+      }
+    } else {
+      // drop back onto belt at current x
+      obj.x = gripper.x;
+      objects.push(obj);
+    }
+    gripper.raiseTimer = RAISE_TIME;
+    gripper.down = false;
+    if (score >= 150) endGame(true);
+    updateHUD();
+  }
+
+  function togglePause(){
+    if (state==='play') state='pause';
+    else if (state==='pause') state='play';
+  }
+
+  // On-screen buttons
+  document.getElementById('btnLeft').addEventListener('pointerdown',()=>keys['ArrowLeft']=true);
+  document.getElementById('btnRight').addEventListener('pointerdown',()=>keys['ArrowRight']=true);
+  document.getElementById('btnGrab').addEventListener('pointerdown',()=>{ if(state==='play') spacePress(); });
+  // release on pointerup anywhere
+  window.addEventListener('pointerup',()=>{ keys['ArrowLeft']=false; keys['ArrowRight']=false; });
+
+  startBtn.addEventListener('click', startGame);
+  restartBtn.addEventListener('click', startGame);
+
+  function startGame(){
+    resetGame();
+    state = 'play';
+    startScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    hud.classList.remove('hidden');
+    buttonsDiv.classList.remove('hidden');
+  }
+
+  // ---------- Main loop ----------
+  function loop(timestamp){
+    const dt = timestamp - lastTime;
+    lastTime = timestamp;
+    if (state==='play'){
+      update(dt);
+    }
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  function update(dt){
+    // gripper movement
+    const speed = 200; // px per second
+    if (keys['ArrowLeft']||keys['KeyA']) gripper.x -= speed*dt/1000;
+    if (keys['ArrowRight']||keys['KeyD']) gripper.x += speed*dt/1000;
+    gripper.x = Math.max(GRIPPER_W/2, Math.min(W-GRIPPER_W/2, gripper.x));
+
+    // raise timer
+    if (gripper.raiseTimer>0){
+      gripper.raiseTimer -= dt;
+      if (gripper.raiseTimer<=0){
+        gripper.raiseTimer = 0;
+        gripper.down = false;
+      }
+    }
+
+    // spawn objects
+    spawnTimer += dt;
+    if (spawnTimer > SPAWN_INTERVAL){
+      spawnObject();
+      spawnTimer = 0;
+    }
+
+    // move objects
+    const beltSpeed = 80 + speedLevel*30; // px per second
+    objects.forEach(o=>o.x += beltSpeed*dt/1000);
+    // remove off-screen objects
+    for (let i=objects.length-1;i>=0;i--){
+      const o = objects[i];
+      if (o.x - o.w/2 > W){
+        if (o.type===targetShape) loseLife();
+        objects.splice(i,1);
+      }
+    }
+    updateHUD();
+  }
+
+  function render(){
+    // background
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0,0,W,H);
+    // belt
+    ctx.fillStyle = '#333';
+    ctx.fillRect(0, BELT_Y, W, BELT_H);
+    // bin
+    drawBin();
+    // objects
+    objects.forEach(drawShape);
+    // gripper
+    drawGripper();
+    // pause overlay
+    if (state==='pause'){
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#fff';
+      ctx.font = '30px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Paused', W/2, H/2);
+    }
+  }
+
+  // start loop
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

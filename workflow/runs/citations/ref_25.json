@@ -1,0 +1,32 @@
+{
+  "ref": 25,
+  "arxiv_id": "2403.12945",
+  "entry": "Alexander Khazatsky, Karl Pertsch, Suraj Nair, Ashwin Balakrishna, Sudeep Dasari, Siddharth Karamcheti, Soroush Nasiriany, Mohan Kumar Srirama, Lawrence Yunliang Chen, Kirsty Ellis, et al. Droid: A large-scale in-the-wild robot manipulation dataset. arXiv preprint arXiv:2403.12945, 2024.",
+  "contexts": [
+    "With the large-scale collection of robotic manipulation datasets in recent years [30, 39, 5, 25, 23, 18], IL has been widely adopted in robotic manipulation, demonstrating remarkable performance across diverse task domains."
+  ],
+  "model": "IFM/K2-Horizon-375B-A23B",
+  "latency_s": 4.26,
+  "usage": {
+    "prompt_tokens": 23368,
+    "total_tokens": 23731,
+    "completion_tokens": 363,
+    "prompt_tokens_details": null,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_chars": 96888,
+  "source_truncated": false,
+  "reasoning_effort": "low",
+  "reasoning": "",
+  "content": "The claim: FastUMI cites DROID as one of the large-scale robotic manipulation datasets collected in recent years, supporting the statement that IL has been widely adopted in robotic manipulation. DROID is indeed a large-scale in-the-wild robot manipulation dataset (76k trajectories, 564 scenes, 86 tasks). The cited paper clearly supports this. Status: supported. Quote: \"we introduce DROID (Distributed Robot Interaction Dataset), a diverse robot manipulation dataset with 76k demonstration trajectories or 350 hours of interaction data, collected across 564 scenes and 86 tasks\" — need verbatim, max 60 words. From the text: \"In this work, we introduce DROID (Distributed Robot Interaction Dataset), a robot manipulation dataset of unprecedented diversity (see Fig. 1). DROID consist of 76k demonstration trajectories or 350 hours of interaction data, collected across 564 scenes, 52 buildings and 86 tasks.\" That's verbatim. Good.\n</ifm|think>\n{\"claim\": \"FastUMI cites DROID as an example of the large-scale robotic manipulation datasets collected in recent years that have enabled the wide adoption of imitation learning in robotic manipulation.\", \"status\": \"supported\", \"quote\": \"In this work, we introduce DROID (Distributed Robot Interaction Dataset), a robot manipulation dataset of unprecedented diversity (see Fig. 1). DROID consist of 76k demonstration trajectories or 350 hours of interaction data, collected across 564 scenes, 52 buildings and 86 tasks.\", \"reason\": \"The cited paper is itself a large-scale in-the-wild robot manipulation dataset (76k trajectories, 564 scenes, 86 tasks, 52 buildings), so it directly supports FastUMI's characterization of it as one of the large-scale robotic manipulation datasets collected in recent years.\"}",
+  "parsed": {
+    "claim": "FastUMI cites DROID as an example of the large-scale robotic manipulation datasets collected in recent years that have enabled the wide adoption of imitation learning in robotic manipulation.",
+    "status": "supported",
+    "quote": "In this work, we introduce DROID (Distributed Robot Interaction Dataset), a robot manipulation dataset of unprecedented diversity (see Fig. 1). DROID consist of 76k demonstration trajectories or 350 hours of interaction data, collected across 564 scenes, 52 buildings and 86 tasks.",
+    "reason": "The cited paper is itself a large-scale in-the-wild robot manipulation dataset (76k trajectories, 564 scenes, 86 tasks, 52 buildings), so it directly supports FastUMI's characterization of it as one of the large-scale robotic manipulation datasets collected in recent years."
+  },
+  "reasoning_leaked_into_content": true,
+  "quote_found_in_source": true
+}
